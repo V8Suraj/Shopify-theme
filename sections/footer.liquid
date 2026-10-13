@@ -1,0 +1,577 @@
+
+
+<div class="section-background color-{{ section.settings.color_scheme }}"></div>
+<div class="main-footer">
+<div class="left-footer-info">
+  <img src="{{ section.settings.f-logo | image_url }}" height="" width="">
+  <p>{{ section.settings.f-text }}</p>
+ <div class="social-wrapper">
+  <div class="social-list">
+
+    {% if section.settings.icon_1 != blank %}
+      <a href="{{ section.settings.link_1 }}" class="social-item" target="_blank">
+        <img src="{{ section.settings.icon_1 | image_url: width: 100 }}" alt="social">
+      </a>
+    {% endif %}
+
+    {% if section.settings.icon_2 != blank %}
+      <a href="{{ section.settings.link_2 }}" class="social-item" target="_blank">
+        <img src="{{ section.settings.icon_2 | image_url: width: 100 }}" alt="social">
+      </a>
+    {% endif %}
+
+    {% if section.settings.icon_3 != blank %}
+      <a href="{{ section.settings.link_3 }}" class="social-item" target="_blank">
+        <img src="{{ section.settings.icon_3 | image_url: width: 100 }}" alt="social">
+      </a>
+    {% endif %}
+
+    {% if section.settings.icon_4 != blank %}
+      <a href="{{ section.settings.link_4 }}" class="social-item" target="_blank">
+        <img src="{{ section.settings.icon_4 | image_url: width: 100 }}" alt="social">
+      </a>
+    {% endif %}
+
+    {% if section.settings.icon_5 != blank %}
+      <a href="{{ section.settings.link_5 }}" class="social-item" target="_blank">
+        <img src="{{ section.settings.icon_5 | image_url: width: 100 }}" alt="social">
+      </a>
+    {% endif %}
+
+  </div>
+</div>
+</div>
+<div
+  class=" right-footer
+    section section--{{ section.settings.section_width }} color-{{ section.settings.color_scheme }}
+    {% if section.settings.section_height != "" %} {{ section.settings.section_height | prepend: "section--height-" }}{% endif %}
+  "
+>
+  {% render 'background-media',
+    background_media: section.settings.background_media,
+    background_video: section.settings.video,
+    background_video_position: section.settings.video_position,
+    background_image: section.settings.background_image,
+    background_image_position: section.settings.background_image_position
+  %}
+
+  <div
+    class="
+      spacing-style
+      layout-panel-flex
+      layout-panel-flex--{{ section.settings.content_direction }}
+      section-content-wrapper
+      {% if section.settings.vertical_on_mobile %} mobile-column{% endif %}
+    "
+    style="
+      {% render 'layout-panel-style', settings: section.settings %}
+      {%  render 'spacing-style', settings: section.settings %}
+    "
+  >
+    {% content_for 'blocks' %}
+  </div>
+</div>
+</div>
+<img class="flash-images" src="https://cdn.shopify.com/s/files/1/0951/5122/7201/files/vector_448.webp?v=1774438697" width="" height="" alt="Icon">
+{% style %}
+img.flash-images {
+    position: absolute;
+    bottom: 0;
+    width: 12.75%;
+    bottom: -66px;
+    left: 24%;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.main-footer {
+    z-index: 3;
+    position: relative;
+}
+.social-list{
+  display: flex;
+  justify-content: left;
+  gap: 8px;
+}
+
+.social-item{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.social-item img{
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
+}
+
+.social-item:hover{
+  transform: translateY(-5px);
+}
+@media screen and (max-width: 1551px) {
+  img.flash-images {
+    bottom: -80px;
+  }
+}
+@media screen and (max-width: 991px) {
+  img.flash-images {
+    width: 22.2%;
+  }
+}
+{% endstyle %}
+
+
+<script>
+  $(document).ready(function(){
+
+  function initAccordion(){
+
+    if ($(window).width() <= 768) {
+
+      // Remove previous events (important)
+      $('.menu__heading').off('click');
+
+      $('.menu__heading').on('click', function(){
+
+        const current = $(this);
+        const content = current.next('.details-content');
+
+        // Accordion behavior
+        $('.menu__heading').not(current).removeClass('active');
+        $('.details-content').not(content).slideUp();
+
+        current.toggleClass('active');
+        content.stop(true, true).slideToggle();
+
+      });
+
+    } else {
+      // Desktop reset
+      $('.menu__heading').off('click');
+      $('.details-content').show();
+      $('.menu__heading').removeClass('active');
+    }
+  }
+
+  // Run on load
+  initAccordion();
+
+  // Run on resize (important for Shopify preview)
+  $(window).resize(function(){
+    initAccordion();
+  });
+
+});
+</script>
+
+{% schema %}
+{
+  "name": "t:names.footer",
+  "class": "section-wrapper",
+  "tag": "footer",
+  "blocks": [
+    {
+      "type": "_divider"
+    },
+    {
+      "type": "@app"
+    },
+    {
+      "type": "button"
+    },
+    {
+      "type": "email-signup"
+    },
+    {
+      "type": "follow-on-shop"
+    },
+    {
+      "type": "footer-utilities"
+    },
+    {
+      "type": "group"
+    },
+    {
+      "type": "icon"
+    },
+    {
+      "type": "image"
+    },
+    {
+      "type": "menu"
+    },
+    {
+      "type": "payment-icons"
+    },
+    {
+      "type": "text"
+    },
+    {
+      "type": "logo"
+    },
+    {
+      "type": "jumbo-text"
+    }
+  ],
+  "enabled_on": {
+    "groups": ["footer"]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:content.layout"
+    },
+    {
+      "type": "image_picker",
+      "id": "f-logo",
+      "label": "Footer Logo"
+    },
+    {
+      "type": "text",
+      "id": "f-text",
+      "label": "Footer Text"
+    },
+    {
+      "type": "header",
+      "content": "Social Icons"
+    },
+
+    {
+      "type": "image_picker",
+      "id": "icon_1",
+      "label": "Icon 1"
+    },
+    {
+      "type": "url",
+      "id": "link_1",
+      "label": "Link 1"
+    },
+
+    {
+      "type": "image_picker",
+      "id": "icon_2",
+      "label": "Icon 2"
+    },
+    {
+      "type": "url",
+      "id": "link_2",
+      "label": "Link 2"
+    },
+
+    {
+      "type": "image_picker",
+      "id": "icon_3",
+      "label": "Icon 3"
+    },
+    {
+      "type": "url",
+      "id": "link_3",
+      "label": "Link 3"
+    },
+
+    {
+      "type": "image_picker",
+      "id": "icon_4",
+      "label": "Icon 4"
+    },
+    {
+      "type": "url",
+      "id": "link_4",
+      "label": "Link 4"
+    },
+
+    {
+      "type": "image_picker",
+      "id": "icon_5",
+      "label": "Icon 5"
+    },
+    {
+      "type": "url",
+      "id": "link_5",
+      "label": "Link 5"
+    },
+    {
+      "type": "select",
+      "id": "content_direction",
+      "label": "t:settings.direction",
+      "options": [
+        {
+          "value": "column",
+          "label": "t:options.vertical"
+        },
+        {
+          "value": "row",
+          "label": "t:options.horizontal"
+        }
+      ],
+      "default": "column"
+    },
+    {
+      "type": "checkbox",
+      "id": "vertical_on_mobile",
+      "label": "t:settings.vertical_on_mobile",
+      "default": true,
+      "visible_if": "{{ section.settings.content_direction == 'row' }}"
+    },
+    {
+      "type": "select",
+      "id": "horizontal_alignment",
+      "label": "t:settings.alignment",
+      "options": [
+        {
+          "value": "flex-start",
+          "label": "t:options.left"
+        },
+        {
+          "value": "center",
+          "label": "t:options.center"
+        },
+        {
+          "value": "flex-end",
+          "label": "t:options.right"
+        },
+        {
+          "value": "space-between",
+          "label": "t:options.space_between"
+        }
+      ],
+      "default": "flex-start",
+      "visible_if": "{{ section.settings.content_direction == 'row' }}"
+    },
+    {
+      "type": "select",
+      "id": "vertical_alignment",
+      "label": "t:settings.position",
+      "options": [
+        {
+          "value": "flex-start",
+          "label": "t:options.top"
+        },
+        {
+          "value": "center",
+          "label": "t:options.center"
+        },
+        {
+          "value": "flex-end",
+          "label": "t:options.bottom"
+        }
+      ],
+      "default": "center",
+      "visible_if": "{{ section.settings.content_direction == 'row' }}"
+    },
+    {
+      "type": "checkbox",
+      "id": "align_baseline",
+      "label": "t:settings.align_baseline",
+      "default": false,
+      "visible_if": "{{ section.settings.vertical_alignment == 'flex-end' }}"
+    },
+    {
+      "type": "select",
+      "id": "horizontal_alignment_flex_direction_column",
+      "label": "t:settings.alignment",
+      "options": [
+        {
+          "value": "flex-start",
+          "label": "t:options.left"
+        },
+        {
+          "value": "center",
+          "label": "t:options.center"
+        },
+        {
+          "value": "flex-end",
+          "label": "t:options.right"
+        }
+      ],
+      "default": "flex-start",
+      "visible_if": "{{ section.settings.content_direction != 'row' }}"
+    },
+    {
+      "type": "select",
+      "id": "vertical_alignment_flex_direction_column",
+      "label": "t:settings.position",
+      "options": [
+        {
+          "value": "flex-start",
+          "label": "t:options.top"
+        },
+        {
+          "value": "center",
+          "label": "t:options.center"
+        },
+        {
+          "value": "flex-end",
+          "label": "t:options.bottom"
+        },
+        {
+          "value": "space-between",
+          "label": "t:options.space_between"
+        }
+      ],
+      "default": "center",
+      "visible_if": "{{ section.settings.content_direction == 'column' }}"
+    },
+    {
+      "type": "range",
+      "id": "gap",
+      "label": "t:settings.gap",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "header",
+      "content": "t:content.size"
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "t:settings.width",
+      "options": [
+        {
+          "value": "page-width",
+          "label": "t:options.page"
+        },
+        {
+          "value": "full-width",
+          "label": "t:options.full"
+        }
+      ],
+      "default": "page-width"
+    },
+    {
+      "type": "select",
+      "id": "section_height",
+      "label": "t:settings.height",
+      "options": [
+        {
+          "value": "",
+          "label": "t:options.auto"
+        },
+        {
+          "value": "small",
+          "label": "t:options.small"
+        },
+        {
+          "value": "medium",
+          "label": "t:options.medium"
+        },
+        {
+          "value": "large",
+          "label": "t:options.large"
+        },
+        {
+          "value": "full-screen",
+          "label": "t:options.full_screen"
+        }
+      ],
+      "default": ""
+    },
+    {
+      "type": "header",
+      "content": "t:content.appearance"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:settings.color_scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "select",
+      "id": "background_media",
+      "label": "t:settings.background_media",
+      "options": [
+        {
+          "value": "none",
+          "label": "t:options.none"
+        },
+        {
+          "value": "image",
+          "label": "t:options.image"
+        },
+        {
+          "value": "video",
+          "label": "t:options.video"
+        }
+      ],
+      "default": "none"
+    },
+    {
+      "type": "video",
+      "id": "video",
+      "label": "t:settings.video",
+      "visible_if": "{{ section.settings.background_media == 'video' }}"
+    },
+    {
+      "type": "select",
+      "id": "video_position",
+      "label": "t:settings.video_position",
+      "options": [
+        {
+          "value": "cover",
+          "label": "t:options.cover"
+        },
+        {
+          "value": "contain",
+          "label": "t:options.contain"
+        }
+      ],
+      "default": "cover",
+      "visible_if": "{{ section.settings.background_media == 'video' }}"
+    },
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "t:settings.image",
+      "visible_if": "{{ section.settings.background_media == 'image' }}"
+    },
+    {
+      "type": "select",
+      "id": "background_image_position",
+      "label": "t:settings.image_position",
+      "options": [
+        {
+          "value": "cover",
+          "label": "t:options.cover"
+        },
+        {
+          "value": "fit",
+          "label": "t:options.fit"
+        }
+      ],
+      "default": "cover",
+      "visible_if": "{{ section.settings.background_media == 'image' }}"
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    }
+  ]
+}
+{% endschema %}

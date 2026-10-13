@@ -1,0 +1,452 @@
+
+{% style %}
+#shopify-section-{{ section.id }} {
+padding-top: {{ section.settings.padding_top }}px;
+padding-bottom: {{ section.settings.padding_bottom }}px;
+}
+@media screen and (max-width: 768px) {
+  #shopify-section-{{ section.id }} {
+    padding-top: {{ section.settings.mobile_padding_top }}px;
+    padding-bottom: {{ section.settings.mobile_padding_bottom }}px;
+  }
+}
+{% endstyle %}
+
+{%- style -%}
+  #dual-promo-{{ section.id }} {
+    --dp-left-bg:       {{ section.settings.left_bg }};
+    --dp-right-bg:      {{ section.settings.right_bg }};
+    --dp-banner-bg:     {{ section.settings.banner_bg }};
+    --dp-banner-text:   {{ section.settings.banner_text_color }};
+    --dp-btn-left-bg:   {{ section.settings.btn_left_bg }};
+    --dp-btn-left-text: {{ section.settings.btn_left_text }};
+    --dp-btn-left-border: {{ section.settings.btn_left_border }};
+    --dp-right-headline:  {{ section.settings.right_headline_color }};
+    --dp-btn-right-bg:    {{ section.settings.btn_right_bg }};
+    --dp-btn-right-text:  {{ section.settings.btn_right_text }};
+    --dp-btn-right-border: {{ section.settings.btn_right_border }};
+    --dp-deco-color:    {{ section.settings.deco_color }};
+  }
+{%- endstyle -%}
+
+<section class="dp-section" id="dual-promo-{{ section.id }}">
+  <div class="dp-inner">
+
+    <div class="dp-left">
+
+      <div class="dp-left__img-wrap">
+        {% if section.settings.left_image != blank %}
+          <img
+            class="dp-left__img dp_left_desk"
+            src="{{ section.settings.left_image | image_url: width: 900 }}"
+            srcset="
+              {{ section.settings.left_image | image_url }} 500w,
+              {{ section.settings.left_image | image_url }} 900w
+            "
+            alt="{{ section.settings.left_image.alt | default: section.settings.left_banner_text }}"
+            width="" height=""
+            loading="eager"
+          >
+          <img
+            class="dp-left__img dp_left_mobile"
+            src="{{ section.settings.left_image_mobile_mobile | image_url: width: 900 }}"
+            srcset="
+              {{ section.settings.left_image_mobile | image_url }} 500w,
+              {{ section.settings.left_image_mobile | image_url }} 900w
+            "
+            alt="{{ section.settings.left_image_mobile.alt | default: section.settings.left_banner_text }}"
+            width="" height=""
+            loading="eager"
+          >
+        {% else %}
+          <div class="dp-left__img-ph">
+            {{ 'product-4' | placeholder_svg_tag: 'dp-ph-svg' }}
+          </div>
+        {% endif %}
+      </div>
+
+    
+      <div class="dp-left__banner">
+        <div class="dp-left__banner-inner">
+          {% if section.settings.left_banner_text != blank %}
+            <p class="dp-left__banner-text">{{ section.settings.left_banner_text }}</p>
+          {% endif %}
+          {% if section.settings.left_btn_label != blank %}
+            <a
+              class="dp-btn dp-btn--left"
+              href="{{ section.settings.left_btn_url | default: '#' }}"
+            >
+              {{ section.settings.left_btn_label }}
+            </a>
+          {% endif %}
+        </div>
+      </div>
+
+    </div>
+    {%- comment -%} ── END LEFT ── {%- endcomment -%}
+
+    {%- comment -%} ══ RIGHT PANEL ══ {%- endcomment -%}
+    {% comment %} <div class="dp-right">
+
+      {%- comment -%} 2×3 blob image grid — top two rows {%- endcomment -%}
+      <div class="dp-right__grid">
+        <img src="{{ section.settings.right_image | image_url }}" width="" height="">
+      </div>
+
+      {%- comment -%} Bottom text + CTA (sits over last row of grid) {%- endcomment -%}
+      <div class="dp-right__bottom">
+        {% if section.settings.right_headline != blank %}
+          <p class="dp-right__headline">{{ section.settings.right_headline }}</p>
+        {% endif %}
+        {% if section.settings.right_btn_label != blank %}
+          <a
+            class="dp-btn dp-btn--right"
+            href="{{ section.settings.right_btn_url | default: '#' }}"
+          >
+            {{ section.settings.right_btn_label }}
+          </a>
+        {% endif %}
+      </div>
+
+    </div> {% endcomment %}
+    {%- comment -%} ── END RIGHT ── {%- endcomment -%}
+
+  </div>
+</section>
+
+<style>
+  /* ─── Section wrapper ────────────────────────────────────── */
+  .dp-section {
+    width: 100%;
+    overflow: hidden;
+  }
+  .dp_left_mobile {
+    display: none;
+  }
+  .dp-inner {
+    display: grid;
+    {% comment %} grid-template-columns: 1fr 1fr; {% endcomment %}
+    grid-template-columns: auto;
+    {% comment %} min-height: clamp(340px, 38vw, 520px); {% endcomment %}
+  }
+
+  .dp-left {
+    position: relative;
+  } 
+
+  /* ── Decorative chevron top-right ──────────────────────── */
+  .dp-left__deco {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: clamp(80px, 12vw, 160px);
+    height: clamp(80px, 12vw, 160px);
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  .dp-left__deco svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .dp-left__img {
+    width: 100%;
+    max-width: 100%;
+    height: 100%;
+  }
+
+  .dp-left__img-ph {
+    width: 100%;
+    height: clamp(200px, 26vw, 380px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.3;
+  }
+  .dp-left__img-ph .dp-ph-svg {
+    width: 55%;
+  }
+
+  .dp-left__banner {
+    position: absolute;
+    bottom: 40px; 
+    left: 0;
+    right: 0; 
+  }
+
+  .dp-left__banner-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    text-align: center;
+  }
+
+  .dp-left__banner-text {
+    font-family: 'Arial Black', 'Impact', sans-serif;
+    font-size: clamp(16px, 2.2vw, 30px);
+    font-weight: 900;
+    color: var(--dp-banner-text);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    margin: 0;
+    line-height: 1.1;
+  }
+
+  /* ══════════════════════════════════════════════
+     RIGHT PANEL
+  ══════════════════════════════════════════════ */
+  .dp-right {
+    position: relative;
+  }
+
+  .dp-right__blob-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .dp-right__blob {
+    width: 100%;
+    aspect-ratio: 1 / 0.85;
+    background: #ffffff;
+    border-radius: 42% 58% 55% 45% / 48% 44% 56% 52%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    padding: 6px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+
+
+  .dp-right__bottom {
+    padding: clamp(14px, 2vw, 24px) clamp(20px, 2.5vw, 36px) clamp(20px, 2.5vw, 40px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    text-align: center;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+  }
+
+  .dp-right__headline {
+    font-family: "Rubik", sans-serif;
+    font-size: 48px;
+    font-weight: 500;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: normal;
+    line-height: 130%;
+    margin: 0;
+    max-width: 664px; 
+  }
+
+  /* ══════════════════════════════════════════════
+     SHARED BUTTONS
+  ══════════════════════════════════════════════ */
+  .dp-btn {
+    display: inline-block;
+    font-family: 'Arial', sans-serif;
+    font-size: clamp(12px, 1.1vw, 15px);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    padding: clamp(10px, 1.2vw, 14px) clamp(24px, 3vw, 40px);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+
+  .dp-btn:hover {
+    opacity: 0.88;
+    transform: translateY(-2px);
+  }
+
+  .dp-btn--left {
+    background: #fff;
+    color: #4E2D12;
+    border-radius: 12px;
+    font-family: "Rubik", sans-serif;
+    font-size: 24px;
+    height: 55px;
+    max-width: 220px;
+    width: 100%;
+    display: block;
+    padding: 0; 
+    line-height: 59px; 
+  }
+
+  .dp-btn--right {
+     background: #fff;
+    color: #4E2D12;
+    border-radius: 12px;
+    font-family: "Rubik", sans-serif;
+    font-size: 24px;
+    height: 55px;
+    max-width: 220px;
+    width: 100%;
+    display: block;
+    padding: 0; 
+    line-height: 59px; 
+  }
+
+@media (max-width: 1600px) {
+  .dp-left__banner {
+    bottom: 20px; 
+  }
+}
+
+  @media (max-width: 768px) {
+    .dp_left_mobile {
+      display: block;
+    }
+    .dp_left_desk {
+      display: none;
+    }
+    .dp-inner {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto auto;
+      min-height: unset;
+    }
+
+    .dp-left { min-height: unset; }
+
+    .dp-left__banner {
+     bottom: 10px; 
+    }
+
+    .dp-left__banner-text {
+      font-size: clamp(16px, 5.5vw, 24px);
+    }
+
+    .dp-right {
+      min-height: unset;
+    }
+
+    .dp-right__headline { font-size: 22px; }
+
+    .dp-right__bottom {
+      padding: 16px 16px 24px;
+      gap: 12px;
+    }
+
+    .dp-btn {
+        font-size: 16px;
+        padding: 0;
+        height: 36px;
+        line-height: 38px;
+        max-width: 140px;
+        border-radius: 6px;
+    }
+  }
+
+ 
+</style>
+
+{% schema %}
+{
+  "name": "Dual Promo Banner",
+  "tag": "section",
+  "class": "section-dual-promo",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Left Panel"
+    },
+    {
+      "type": "image_picker",
+      "id": "left_image",
+      "label": "Left Image"
+    },
+    {
+      "type": "image_picker",
+      "id": "left_image_mobile",
+      "label": "Left Image Mobile"
+    },
+    {
+      "type": "image_picker",
+      "id": "right_image",
+      "label": "Right Image"
+    },
+    {
+      "type": "text",
+      "id": "left_btn_label",
+      "label": "Left Button Label",
+      "default": "Add to Bag"
+    },
+    {
+      "type": "url",
+      "id": "left_btn_url",
+      "label": "Left Button URL"
+    },
+    {
+      "type": "text",
+      "id": "right_headline",
+      "label": "Right Headline Text",
+      "default": "MORE BARS. BETTER PRICE.\nNEVER RUN OUT."
+    },
+    {
+      "type": "text",
+      "id": "right_btn_label",
+      "label": "Right Button Label",
+      "default": "Explore more"
+    },
+    {
+      "type": "url",
+      "id": "right_btn_url",
+      "label": "Right Button URL"
+    },
+    {
+    "type": "range",
+    "id": "padding_top",
+    "min": 0,
+    "max": 120,
+    "step": 4,
+    "unit": "px",
+    "label": "Desktop Padding Top",
+    "default": 80
+  },
+  {
+    "type": "range",
+    "id": "padding_bottom",
+    "min": 0,
+    "max": 120,
+    "step": 4,
+    "unit": "px",
+    "label": "Desktop Padding Bottom",
+    "default": 80
+  },
+  {
+    "type": "range",
+    "id": "mobile_padding_top",
+    "min": 0,
+    "max": 120,
+    "step": 4,
+    "unit": "px",
+    "label": "Mobile Padding Top",
+    "default": 40
+  },
+  {
+    "type": "range",
+    "id": "mobile_padding_bottom",
+    "min": 0,
+    "max": 120,
+    "step": 4,
+    "unit": "px",
+    "label": "Mobile Padding Bottom",
+    "default": 40
+  },
+  ],
+  "presets": [
+    {
+      "name": "Dual Promo Banner"
+    }
+  ]
+}
+{% endschema %}

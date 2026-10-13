@@ -1,0 +1,304 @@
+<div id="sticky-add-to-cart" class="sticky-atc">
+    <div class="sticky-atc-inner">
+        <div class="sticky-atc__info">
+            <div class="sticky-atc__title" id="sticky-atc-title">{{ product.title | split: '|' | first}}</div>
+            <div class="sticky-atc__price" id="sticky-atc-price">
+            {%- if current_variant.price_varies -%}
+                {{ current_variant.price_minimal | money }}
+            {%- else -%}
+                {{ current_variant.price | money }}
+            {%- endif -%}
+            </div>
+        </div>
+
+        <div class="sticky-atc__controls">
+            <select id="sticky-select">
+            {% for variant in product.variants %}
+                <option {% if variant.id == current_variant.id %}selected{% endif %} value="{{ variant.id }}">{{  variant.title }}</option>
+            {% endfor %}
+            </select>
+            <button id="sticky-atc-add" class="button button--primary btn" type="button">
+            Add to Bag
+            </button>
+        </div>
+    </div>
+</div>
+{%  style %}
+.sticky-atc__controls .btn{
+    padding: 10px 20px;
+    min-width: 200px;
+}
+.sticky-atc {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+  padding: 12px;
+  box-shadow: 0 -6px 20px rgba(0,0,0,0.08);
+  background: #fff;
+  border-top: 1px solid rgba(0,0,0,0.06);
+  transform: translateY(100%);
+  transition: transform .22s ease;
+}
+.sticky-atc-inner{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+/* Visible state */
+.sticky-atc.is-visible {
+  transform: translateY(0);
+}
+
+/* Info */
+.sticky-atc__info {
+  display:flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1 0 40%;
+  min-width: 0;
+}
+.sticky-atc__title {
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sticky-atc__price {
+  font-size: 13px;
+  color: #111;
+}
+
+/* Controls */
+.sticky-atc__controls {
+  display:flex;
+  gap:8px;
+  align-items:center;
+  flex-shrink:0;
+  flex: 1 0 50%;
+      justify-content: flex-end;
+}
+select#sticky-select {
+    max-width: 200px;
+    margin-bottom: 0 !important;
+    /* display: none; */
+}
+/* Loader dot animation */
+.sticky-atc-loading {
+  position: relative;
+  pointer-events: none;
+  opacity: 0.8;
+}
+
+.sticky-atc-loading::after {
+  content: "";
+  width: 16px;
+  height: 16px;
+  border: 2px solid #fff;
+  border-top-color: transparent;
+  border-radius: 50%;
+  position: absolute;
+  right: -26px;
+  top: 50%;
+  transform: translateY(-50%);
+  animation: spin 0.7s linear infinite;
+  background: transparent;
+}
+.sticky-atc__controls .btn{background: #910606}
+
+@keyframes spin {
+  to {
+    transform: translateY(-50%) rotate(360deg);
+  }
+}
+select#sticky-select {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+@media screen and (max-width: 750px){
+   .sticky-atc-inner {
+        flex-direction: column;
+    } 
+    .sticky-atc__controls {
+        flex: 1 1 100%;
+        width: 100%;
+    }
+    .sticky-atc__controls .btn {
+        /* min-width: 130px; */
+        font-size: 14px !important;
+        padding: 10px !important;
+                width: 100%;
+    }
+    select#sticky-select {
+        font-size: 12px;
+        min-width: 50%;
+        padding-left: 12px;
+        max-width: max-content;
+    }
+    .sticky-atc__info {
+        max-width: 100%;
+    }
+    .sticky-atc{
+      padding: 12px 12px 20px;
+    }
+    .sticky-atc__controls .btn{min-width: unset;}
+
+}
+{% endstyle %}
+{% javascript %}
+document.addEventListener("DOMContentLoaded", function () {
+  const stickyATC = document.querySelector(".sticky-atc");
+  const mainATC = document.querySelector(".add-to-cart-button");
+
+  if (!stickyATC || !mainATC) return;
+
+  let hasScrolledEnough = false;
+
+  // Track scroll position
+  window.addEventListener("scroll", function () {
+    hasScrolledEnough = window.scrollY > 1000;
+
+    // If not scrolled enough → always hide
+    if (!hasScrolledEnough) {
+      stickyATC.classList.remove("is-visible");
+    }
+  });
+
+  // Observe main ATC visibility
+  const observer = new IntersectionObserver(
+    (entries) => {
+      const entry = entries[0];
+
+      // If scroll is less than 1000 → NEVER show
+      if (!hasScrolledEnough) {
+        stickyATC.classList.remove("is-visible");
+        return;
+      }
+
+      if (entry.isIntersecting) {
+        // Main ATC visible → hide sticky
+        stickyATC.classList.remove("is-visible");
+      } else {
+        // Main ATC not visible + scrolled > 1000 → show sticky
+        stickyATC.classList.add("is-visible");
+      }
+    },
+    {
+      root: null,
+      threshold: 0,
+    }
+  );
+
+  observer.observe(mainATC);
+});
+
+  (function () {
+  // Helper: safe text normalize for matching (trim, collapse whitespace)
+  function normalizeText(s) {
+    return (s || '').toString().trim().replace(/\s+/g, ' ');
+  }
+
+  // Helper: transform label into a 'handle' like data-handle value (pack-of-6)
+  function toHandle(s) {
+    return normalizeText(s).toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-');
+  }
+
+  const select = document.getElementById('sticky-select');
+  if (!select) return;
+
+  // Query radios inside your variant picker block (scoped selector - adjust if needed)
+  const radiosSelector = 'fieldset.product-form__input--pill input[type="radio"]';
+  function getRadios() {
+    return Array.from(document.querySelectorAll(radiosSelector));
+  }
+
+  // On select change -> try to find a radio to match and trigger click/change
+  select.addEventListener('change', function () {
+    const selectedOption = select.options[select.selectedIndex];
+    if (!selectedOption) return;
+
+    const optValue = normalizeText(selectedOption.value);      // in your markup it's the variant id (5122...)
+    const optText = normalizeText(selectedOption.text || selectedOption.label); // e.g. "Pack of 6"
+    const optHandle = toHandle(optText);                       // e.g. "pack-of-6"
+
+    const radios = getRadios();
+
+    // Matching strategies (in order):
+    // 1) radio.value === optText (exact visible label match)
+    // 2) radio.dataset.handle === optHandle (match data-handle like 'pack-of-6')
+    // 3) radio.id contains optText or optHandle
+    // 4) fallback: try to match by a data-variant-id attribute if your theme adds it (radio.dataset.variantId)
+    let match = radios.find(r => normalizeText(r.value) === optText);
+    if (!match) {
+      match = radios.find(r => (r.dataset && normalizeText(r.dataset.handle) === optHandle));
+    }
+    if (!match) {
+      match = radios.find(r => {
+        const id = (r.id || '').toLowerCase();
+        return id.includes(optHandle) || id.includes(optText.toLowerCase());
+      });
+    }
+    if (!match) {
+      match = radios.find(r => {
+        // some themes render variant ids into data attributes - try common names
+        const v = r.dataset.variantId || r.dataset.variant || r.getAttribute('data-variant-id') || '';
+        return v === optValue || v === String(optValue);
+      });
+    }
+
+    if (!match) {
+      // nothing found — you can log for debugging
+      console.warn('No matching radio found for select option:', { optValue, optText, optHandle });
+      return;
+    }
+
+    // If there's a label associated with the input, click the label (better for native UI)
+    const label = document.querySelector(`label[for="${CSS.escape(match.id)}"]`);
+    if (label) {
+      label.click();
+    } else {
+      // otherwise click the radio itself and dispatch change event
+      match.click();
+      // some frameworks rely on change event - dispatch it explicitly
+      match.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+  });
+})();
+
+document.addEventListener("DOMContentLoaded", function () {
+  const stickyBtn = document.getElementById("sticky-atc-add");
+  if (!stickyBtn) return;
+
+  stickyBtn.addEventListener("click", function () {
+    const mainATC = document.querySelector(".add-to-cart-button");
+    if (!mainATC) return;
+
+    // Save original text
+    const originalText = stickyBtn.textContent;
+
+    // Add loading state
+    stickyBtn.textContent = "Adding...";
+    stickyBtn.classList.add("sticky-atc-loading");
+    stickyBtn.disabled = true;
+
+    // Trigger the main ATC
+    mainATC.click();
+
+    // Restore button after short delay
+    setTimeout(() => {
+      stickyBtn.textContent = originalText;
+      stickyBtn.classList.remove("sticky-atc-loading");
+      stickyBtn.disabled = false;
+    }, 1200);
+  });
+});
+
+
+
+{% endjavascript %}

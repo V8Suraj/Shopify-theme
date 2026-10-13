@@ -1,0 +1,217 @@
+<section class="review-slider-section review-{{ section.id }}">
+  <div class="page-width">
+        <div class="title-wrapper title-wrapper--no-top-margin">
+          {%- if section.settings.title != blank -%}
+              <h2 class="main_heading title">
+              {{ section.settings.title }}
+              </h2>
+          {%- endif -%}
+        </div>
+        <div class="swiper_button">
+            <div class="swiper review-swiper">
+                <div class="swiper-wrapper">
+                {% for block in section.blocks %}
+                    <div class="swiper-slide">
+                        <img
+                        src="{{ block.settings.slide_image | image_url }}"
+                        alt=""
+                        loading="lazy"
+                        width="" height=""
+                        >
+                    </div>
+                {% endfor %}
+                </div>
+            </div>
+            <div class="review-nav">
+                <div class="swiper-button-prev review-prev">
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M15.832 10H4.16536" stroke="#4F2B08" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+                    <path d="M7.5 13.3333L4.16667 10" stroke="#4F2B08" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+                    <path d="M7.5 6.66406L4.16667 9.9974" stroke="#4F2B08" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+                  </svg>
+                </div>
+                <div class="swiper-button-next review-next">
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4.16406 10H15.8307" stroke="#4F2B08" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+                    <path d="M12.5 13.3333L15.8333 10" stroke="#4F2B08" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+                    <path d="M12.5 6.66406L15.8333 9.9974" stroke="#4F2B08" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+                  </svg>
+                </div>
+            </div> 
+        </div>     
+
+  </div>
+</section>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const sectionId = "{{ section.id }}";
+  const selector = `.review-${sectionId} .review-swiper`;
+  const prevBtn = document.querySelector(`.review-${sectionId} .review-prev`);
+  const nextBtn = document.querySelector(`.review-${sectionId} .review-next`);
+  const slideCount = {{ section.blocks.size }};
+  const perView = {{ section.settings.perview }};
+
+  // Hide arrows initially
+  if (slideCount <= perView) {
+    prevBtn.style.display = "none";
+    nextBtn.style.display = "none";
+  }
+
+  const swiper = new Swiper(selector, {
+    slidesPerView: perView,
+    spaceBetween: 20,
+    loop: false,
+    navigation: {
+      nextEl: `.review-${sectionId} .review-next`,
+      prevEl: `.review-${sectionId} .review-prev`
+    },
+    breakpoints: {
+      0: {
+        slidesPerView: 1.3,
+        spaceBetween: 6,
+      },
+      576: { slidesPerView: 2.2 },
+      769: { slidesPerView: 3, spaceBetween: 12 },
+      1024: { slidesPerView: perView, spaceBetween: 20 }
+    },
+    on: {
+      init: function () {
+        // Re-check after responsive breakpoints
+        const currentPerView = this.params.slidesPerView;
+        if (slideCount <= currentPerView) {
+          prevBtn.style.display = "none";
+          nextBtn.style.display = "none";
+        } else {
+          prevBtn.style.display = "flex";
+          nextBtn.style.display = "flex";
+        }
+      },
+      resize: function () {
+        const currentPerView = this.params.slidesPerView;
+        if (slideCount <= currentPerView) {
+          prevBtn.style.display = "none";
+          nextBtn.style.display = "none";
+        } else {
+          prevBtn.style.display = "flex";
+          nextBtn.style.display = "flex";
+        }
+      }
+    }
+  });
+});
+</script>
+
+<style>
+.review-nav .swiper-button-prev {
+  left: 10px;
+}
+.review-nav .swiper-button-next {
+  right: 10px;
+}
+.review-slider-section img {
+  width: 100%;
+  display: block;
+}
+.review-slider-section .swiper_button {
+  position: relative;
+}
+.review-{{ section.id }}.review-slider-section {
+  padding-top: {{ section.settings.padding_top }}px;
+  padding-bottom: {{ section.settings.padding_bottom }}px;
+  background-color: {{ section.settings.bg_color }};
+}
+@media screen and (max-width: 768px) {
+  .review-{{ section.id }}.review-slider-section {
+    padding-top: {{ section.settings.padding_top_mobile }}px;
+    padding-bottom: {{ section.settings.padding_bottom_mobile }}px;
+  }
+}
+
+</style>
+
+{% schema %}
+{
+  "name": "Review section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Heading",
+      "default": "The Love Stories"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background color"
+    },
+    {
+      "type": "range",
+      "id": "perview",
+      "label": "Slider desktop view",
+      "min": 3,
+      "max": 5,
+      "step": 1,
+      "default": 5
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Padding Top (Desktop)",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Padding Bottom (Desktop)",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "default": 30
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "label": "Padding Top (Mobile)",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "label": "Padding Bottom (Mobile)",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "default": 20
+    }
+  ],
+
+  "blocks": [
+    {
+      "type": "slider_image",
+      "name": "Slider Image",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "slide_image",
+          "label": "Slide Image"
+        }
+      ]
+    }
+  ],
+
+  "presets": [
+    {
+      "name": "Review section",
+      "category": "Custom"
+    }
+  ]
+}
+{% endschema %}

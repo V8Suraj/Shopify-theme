@@ -1,0 +1,79 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "main": {
+      "type": "main-page",
+      "blocks": {
+        "heading": {
+          "type": "text",
+          "name": "Title",
+          "disabled": true,
+          "settings": {
+            "text": "<h1>{{ closest.page.title }}</h1>",
+            "width": "100%",
+            "max_width": "normal",
+            "alignment": "left",
+            "type_preset": "h2",
+            "font": "var(--font-primary--family)",
+            "font_size": "",
+            "line_height": "normal",
+            "letter_spacing": "normal",
+            "case": "none",
+            "wrap": "pretty",
+            "color": "",
+            "background": false,
+            "background_color": "#00000026",
+            "corner_radius": 0,
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {}
+        },
+        "page-content": {
+          "type": "page-content",
+          "settings": {},
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "heading",
+        "page-content"
+      ],
+      "settings": {
+        "content_direction": "column",
+        "gap": 32,
+        "color_scheme": "",
+        "padding-block-start": 40,
+        "padding-block-end": 80
+      }
+    },
+    "custom_liquid_BDyQrz": {
+      "type": "custom-liquid",
+      "custom_css": [
+        ".teinpro-coming-soon {border-radius: 10px;}"
+      ],
+      "name": "t:names.custom_liquid",
+      "settings": {
+        "custom_liquid": "<div class=\"teinpro-coming-soon\">\n\n  <div class=\"coming-soon__glow\"></div>\n\n  <div class=\"coming-soon__content\">\n\n    <div class=\"coming-soon__badge\">\n      <span class=\"coming-soon__dot\"></span>\n      SOMETHING GOOD IS COMING\n    </div>\n\n    <h2>\n      YOUR PERFECT<br>\n      <span>BUNDLE IS COMING SOON.</span>\n    </h2>\n\n    <p>\n      We’re crafting something special for you.\n      Build your own box, pick your favourite flavours\n      and get more for less.\n    </p>\n\n    <div class=\"coming-soon__line\">\n      <span></span>\n      <b>COMING SOON</b>\n      <span></span>\n    </div>\n\n    <div class=\"coming-soon__cards\">\n\n      <div class=\"coming-card\">\n        <div class=\"coming-card__icon\">✦</div>\n        <strong>Pick Your Flavours</strong>\n        <small>Choose your favourites</small>\n      </div>\n\n      <div class=\"coming-card\">\n        <div class=\"coming-card__icon\">+</div>\n        <strong>Build Your Box</strong>\n        <small>Create it your way</small>\n      </div>\n\n      <div class=\"coming-card\">\n        <div class=\"coming-card__icon\">%</div>\n        <strong>More You Pick</strong>\n        <small>More you save</small>\n      </div>\n\n    </div>\n\n    <div class=\"coming-soon__notify\">\n      <span>🚀</span>\n      <div>\n        <strong>WE’RE ALMOST READY</strong>\n        <small>Stay tuned. Your next favourite box is on its way.</small>\n      </div>\n    </div>\n\n  </div>\n\n</div>\n\n\n<style>\n\n.teinpro-coming-soon {\n  --brown: #5a2d05;\n  --red: #a71920;\n  --cream: #fff1dc;\n\n  position: relative;\n\n  width: 100%;\n  min-height: 430px;\n\n  display: flex;\n  align-items: center;\n  justify-content: center;\n\n  overflow: hidden;\n\n  padding: 70px 25px;\n\n  background:\n    radial-gradient(\n      circle at 20% 20%,\n      rgba(167,25,32,.10),\n      transparent 30%\n    ),\n    radial-gradient(\n      circle at 80% 80%,\n      rgba(90,45,5,.10),\n      transparent 30%\n    ),\n    repeating-linear-gradient(\n      135deg,\n      #fff8ec 0px,\n      #fff8ec 12px,\n      #fff3df 12px,\n      #fff3df 24px\n    );\n}\n\n\n/* subtle background glow */\n\n.coming-soon__glow {\n  position: absolute;\n\n  width: 500px;\n  height: 500px;\n\n  border-radius: 50%;\n\n  background: rgba(167,25,32,.07);\n\n  filter: blur(80px);\n\n  pointer-events: none;\n}\n\n\n/* content */\n\n.coming-soon__content {\n  position: relative;\n\n  z-index: 2;\n\n  width: min(900px, 100%);\n\n  text-align: center;\n}\n\n\n/* badge */\n\n.coming-soon__badge {\n  display: inline-flex;\n\n  align-items: center;\n  gap: 8px;\n\n  padding: 9px 17px;\n\n  border-radius: 999px;\n\n  background: #fff;\n\n  border: 1px solid rgba(90,45,5,.15);\n\n  color: var(--red);\n\n  font-size: 10px;\n  font-weight: 900;\n\n  letter-spacing: 1.2px;\n}\n\n.coming-soon__dot {\n  width: 7px;\n  height: 7px;\n\n  border-radius: 50%;\n\n  background: var(--red);\n\n  animation: comingPulse 1.5s infinite;\n}\n\n@keyframes comingPulse {\n\n  0%,\n  100% {\n    transform: scale(1);\n    opacity: 1;\n  }\n\n  50% {\n    transform: scale(1.5);\n    opacity: .5;\n  }\n\n}\n\n\n/* heading */\n\n.coming-soon__content h2 {\n  margin: 20px 0 12px;\n\n  color: var(--brown);\n\n  font-size: clamp(38px, 5vw, 68px);\n\n  line-height: .98;\n\n  letter-spacing: -2px;\n\n  font-weight: 900;\n}\n\n.coming-soon__content h2 span {\n  color: var(--red);\n}\n\n\n/* paragraph */\n\n.coming-soon__content > p {\n  max-width: 600px;\n\n  margin: 0 auto;\n\n  color: #6c6259;\n\n  font-size: 14px;\n\n  line-height: 1.6;\n}\n\n\n/* coming soon divider */\n\n.coming-soon__line {\n  display: flex;\n\n  align-items: center;\n\n  gap: 15px;\n\n  max-width: 500px;\n\n  margin: 28px auto 22px;\n}\n\n.coming-soon__line span {\n  flex: 1;\n\n  height: 1px;\n\n  background: rgba(90,45,5,.18);\n}\n\n.coming-soon__line b {\n  color: var(--red);\n\n  font-size: 11px;\n\n  letter-spacing: 1.5px;\n}\n\n\n/* cards */\n\n.coming-soon__cards {\n  display: grid;\n\n  grid-template-columns:\n    repeat(3, 1fr);\n\n  gap: 12px;\n\n  max-width: 720px;\n\n  margin: 0 auto;\n}\n\n.coming-card {\n  padding: 18px 12px;\n\n  background: rgba(255,255,255,.75);\n\n  border: 1px solid rgba(90,45,5,.12);\n\n  border-radius: 16px;\n\n  box-shadow:\n    0 8px 25px rgba(90,45,5,.05);\n\n  transition:\n    transform .2s ease,\n    box-shadow .2s ease;\n}\n\n.coming-card:hover {\n  transform: translateY(-4px);\n\n  box-shadow:\n    0 14px 30px rgba(90,45,5,.10);\n}\n\n.coming-card__icon {\n  width: 34px;\n  height: 34px;\n\n  display: grid;\n  place-items: center;\n\n  margin: 0 auto 8px;\n\n  border-radius: 50%;\n\n  background: var(--cream);\n\n  color: var(--red);\n\n  font-size: 17px;\n\n  font-weight: 900;\n}\n\n.coming-card strong {\n  display: block;\n\n  color: var(--brown);\n\n  font-size: 12px;\n}\n\n.coming-card small {\n  display: block;\n\n  margin-top: 4px;\n\n  color: #81776e;\n\n  font-size: 9px;\n}\n\n\n/* bottom notification */\n\n.coming-soon__notify {\n  display: inline-flex;\n\n  align-items: center;\n\n  gap: 10px;\n\n  margin-top: 22px;\n\n  padding: 9px 16px;\n\n  border-radius: 999px;\n\n  background: var(--brown);\n\n  color: #fff;\n\n  text-align: left;\n}\n\n.coming-soon__notify > span {\n  font-size: 18px;\n}\n\n.coming-soon__notify strong {\n  display: block;\n\n  font-size: 9px;\n\n  letter-spacing: .7px;\n}\n\n.coming-soon__notify small {\n  display: block;\n\n  margin-top: 2px;\n\n  color: rgba(255,255,255,.75);\n\n  font-size: 8px;\n}\n\n\n/* =========================================\n   MOBILE\n========================================= */\n\n@media (max-width: 749px) {\n\n  .teinpro-coming-soon {\n    min-height: 500px;\n\n    padding: 55px 16px;\n  }\n\n  .coming-soon__badge {\n    font-size: 8px;\n\n    padding: 8px 13px;\n  }\n\n  .coming-soon__content h2 {\n    margin-top: 17px;\n\n    font-size: 38px;\n\n    letter-spacing: -1.3px;\n  }\n\n  .coming-soon__content > p {\n    max-width: 340px;\n\n    font-size: 12px;\n  }\n\n  .coming-soon__line {\n    margin-top: 23px;\n  }\n\n  .coming-soon__cards {\n    grid-template-columns:\n      repeat(3, 1fr);\n\n    gap: 6px;\n  }\n\n  .coming-card {\n    padding: 12px 6px;\n\n    border-radius: 12px;\n  }\n\n  .coming-card__icon {\n    width: 28px;\n    height: 28px;\n\n    font-size: 13px;\n  }\n\n  .coming-card strong {\n    font-size: 9px;\n  }\n\n  .coming-card small {\n    font-size: 7px;\n  }\n\n  .coming-soon__notify {\n    max-width: 95%;\n\n    margin-top: 18px;\n\n    padding: 8px 12px;\n  }\n\n}\n/* =========================================\n   MOBILE RESPONSIVE — COMING SOON\n========================================= */\n\n@media (max-width: 749px) {\n\n  .teinpro-coming-soon {\n    width: 100%;\n    min-height: 560px;\n\n    padding: 55px 16px;\n\n    display: flex;\n    align-items: center;\n    justify-content: center;\n\n    overflow: hidden;\n  }\n\n  .coming-soon__content {\n    width: 100%;\n    max-width: 420px;\n  }\n\n  /* Badge */\n\n  .coming-soon__badge {\n    display: inline-flex;\n\n    max-width: 100%;\n\n    padding: 8px 13px;\n\n    font-size: 8px;\n    letter-spacing: .9px;\n\n    white-space: nowrap;\n  }\n\n  /* Heading */\n\n  .coming-soon__content h2 {\n    margin: 18px 0 14px;\n\n    font-size: clamp(34px, 10vw, 46px);\n    line-height: .98;\n\n    letter-spacing: -1.5px;\n  }\n\n  /* Description */\n\n  .coming-soon__content > p {\n    width: 100%;\n    max-width: 350px;\n\n    margin: 0 auto;\n\n    font-size: 12px;\n    line-height: 1.55;\n  }\n\n  /* Divider */\n\n  .coming-soon__line {\n    width: 100%;\n\n    margin: 24px auto 18px;\n\n    gap: 10px;\n  }\n\n  .coming-soon__line b {\n    font-size: 9px;\n\n    letter-spacing: 1.2px;\n\n    white-space: nowrap;\n  }\n\n\n  /* Feature cards */\n\n  .coming-soon__cards {\n    width: 100%;\n\n    display: grid;\n\n    grid-template-columns:\n      repeat(3, minmax(0, 1fr));\n\n    gap: 7px;\n\n    margin: 0 auto;\n  }\n\n  .coming-card {\n    min-width: 0;\n\n    padding: 13px 5px;\n\n    border-radius: 12px;\n  }\n\n  .coming-card__icon {\n    width: 30px;\n    height: 30px;\n\n    margin-bottom: 7px;\n\n    font-size: 13px;\n  }\n\n  .coming-card strong {\n    font-size: 8.5px;\n    line-height: 1.2;\n  }\n\n  .coming-card small {\n    margin-top: 4px;\n\n    font-size: 7px;\n    line-height: 1.2;\n  }\n\n\n  /* Bottom notification */\n\n  .coming-soon__notify {\n    width: 100%;\n    max-width: 350px;\n\n    display: flex;\n\n    margin: 18px auto 0;\n\n    padding: 10px 13px;\n\n    border-radius: 13px;\n  }\n\n  .coming-soon__notify > span {\n    flex: 0 0 auto;\n\n    font-size: 17px;\n  }\n\n  .coming-soon__notify strong {\n    font-size: 8px;\n  }\n\n  .coming-soon__notify small {\n    font-size: 7px;\n\n    line-height: 1.3;\n  }\n\n}\n\n\n/* =========================================\n   VERY SMALL PHONES\n========================================= */\n\n@media (max-width: 380px) {\n\n  .teinpro-coming-soon {\n    min-height: 530px;\n\n    padding: 45px 12px;\n  }\n\n  .coming-soon__content h2 {\n    font-size: 32px;\n\n    letter-spacing: -1.2px;\n  }\n\n  .coming-soon__content > p {\n    font-size: 11px;\n  }\n\n  .coming-soon__cards {\n    gap: 5px;\n  }\n\n  .coming-card {\n    padding: 11px 4px;\n  }\n\n  .coming-card strong {\n    font-size: 8px;\n  }\n\n  .coming-card small {\n    display: none;\n  }\n\n  .coming-soon__notify {\n    max-width: 100%;\n  }\n\n}\n\n\n/* =========================================\n   TABLET\n========================================= */\n\n@media (min-width: 750px) and (max-width: 1100px) {\n\n  .teinpro-coming-soon {\n    padding: 60px 25px;\n  }\n\n  .coming-soon__content h2 {\n    font-size: 52px;\n  }\n\n  .coming-soon__cards {\n    max-width: 650px;\n  }\n\n}\n</style>",
+        "color_scheme": "",
+        "section_width": "page-width",
+        "padding-block-start": 20,
+        "padding-block-end": 20
+      }
+    }
+  },
+  "order": [
+    "main",
+    "custom_liquid_BDyQrz"
+  ]
+}

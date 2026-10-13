@@ -1,0 +1,97 @@
+{%- doc -%}
+  Renders the account popover for desktop users, which appears when clicking the account icon. It contains links for account actions like login, logout, and viewing account details.
+
+  @param {object} [settings] - The theme-level settings.
+
+  @param {string} [settings.popover_color_scheme] - The color scheme for the popover panel.
+{%- enddoc -%}
+<anchored-popover-component
+  data-close-on-resize="true"
+  class="account-popover mobile:hidden"
+>
+  {% render 'account-button' with 'account-popover' as popover_id %}
+  <div
+    class="account-popover__panel details-content color-{{ settings.popover_color_scheme }}"
+    id="account-popover"
+    popover="auto"
+    ref="popover"
+  >
+    {% render 'account-actions' %}
+  </div>
+</anchored-popover-component>
+
+{% stylesheet %}
+  .account-popover__panel::backdrop {
+  display: none !important;
+}
+
+.account-popover__panel {
+  --account-popover-opacity: 0;
+  --account-popover-y: 20px;
+
+  position-anchor: --account-button-trigger;
+  border-radius: var(--style-border-radius-popover);
+  margin: 0;
+  left: unset;
+  width: max-content;
+  min-width: var(--account-popover-min-width);
+  box-shadow: var(--shadow-popover);
+  border: var(--style-border-popover);
+  background-color: var(--color-background);
+  overflow-y: hidden;
+
+  opacity: var(--account-popover-opacity);
+  translate: 0 var(--account-popover-y);
+
+  /* ✅ IMPORTANT FIX */
+  pointer-events: none;
+
+  /* ✅ CLEAN TRANSITION */
+  transition: opacity 0.3s var(--ease-out-quad),
+              translate 0.3s var(--ease-out-quad);
+
+  top: calc(anchor(bottom) + var(--header-padding));
+  right: anchor(right);
+}
+
+/* ✅ OPEN STATE */
+.account-popover__panel:popover-open {
+  --account-popover-opacity: 1;
+  --account-popover-y: 0px;
+
+  pointer-events: auto;
+}
+
+/* fallback support */
+@supports not selector(:popover-open) {
+  .account-popover__panel.\:popover-open {
+    --account-popover-opacity: 1;
+    --account-popover-y: 0px;
+    pointer-events: auto;
+  }
+}
+{% endstylesheet %}
+
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const popover = document.getElementById("account-popover");
+
+  // Optional: close on ESC manually (extra safety)
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && popover.matches(":popover-open")) {
+      popover.hidePopover();
+    }
+  });
+
+  // Optional: close when clicking outside (if Shopify component fails)
+  document.addEventListener("click", (e) => {
+    const isClickInside = popover.contains(e.target);
+    const isButton = e.target.closest('[popovertarget="account-popover"]');
+
+    if (!isClickInside && !isButton && popover.matches(":popover-open")) {
+      popover.hidePopover();
+    }
+  });
+});
+</script>

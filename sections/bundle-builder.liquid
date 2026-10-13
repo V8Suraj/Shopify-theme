@@ -1,0 +1,3370 @@
+{% liquid
+  assign bundle_collection = section.settings.collection
+  assign min_items = section.settings.min_items
+  assign max_items = section.settings.max_items
+
+  assign min_pct = min_items | times: 100.0 | divided_by: max_items
+  if min_pct > 100
+    assign min_pct = 100
+  endif
+%}
+
+<section
+  id="BundleBuilder-{{ section.id }}"
+  class="bb"
+  data-section-id="{{ section.id }}"
+  data-min="{{ min_items }}"
+  data-max="{{ max_items }}"
+  data-celebrate="{{ section.settings.enable_celebration }}"
+  data-celebrate-text="{{ section.settings.celebration_text | escape }}"
+  style="--bb-sidebar-top: {{ section.settings.sidebar_offset }}px;"
+>
+
+  <div class="bb__container">
+
+    <!-- =========================================
+         HERO
+    ========================================== -->
+
+    <div class="bb__hero">
+
+      <div class="bb__eyebrow">
+        {{ section.settings.eyebrow }}
+      </div>
+
+      <h1 class="bb__hero-title">
+        {{ section.settings.heading }}
+      </h1>
+
+      <div class="bb__limit">
+        {{ section.settings.limit_text }}
+      </div>
+
+    </div>
+
+
+    <!-- =========================================
+         LAYOUT (desktop: products + sidebar)
+    ========================================== -->
+
+    <div class="bb__layout{% unless section.settings.enable_sticky %} bb__layout--full{% endunless %}">
+
+      <div class="bb__main">
+
+        <!-- COLLECTION HEADER -->
+
+        <div class="bb__collection-header">
+
+          <div class="bb__collection-heading">
+
+            <h2>
+              Get started here
+            </h2>
+
+            <p>
+              Choose from this collection of products
+            </p>
+
+          </div>
+
+
+          <button
+            type="button"
+            class="bb__top-btn"
+            aria-label="Scroll to top"
+            onclick="document.getElementById('BundleBuilder-{{ section.id }}').scrollIntoView({behavior:'smooth'})"
+          >
+            <span>⌃</span>
+            <small>Top</small>
+          </button>
+
+        </div>
+
+
+        <!-- PRODUCT GRID -->
+
+        {% if bundle_collection != blank %}
+
+          <div class="bb__grid">
+
+            {% for product in bundle_collection.products limit: 50 %}
+
+              {% assign variant = product.selected_or_first_available_variant %}
+
+              <article
+                class="bb__product"
+                data-product-id="{{ product.id }}"
+                data-variant-id="{{ variant.id }}"
+                data-title="{{ product.title | escape }}"
+                data-image="{% if product.featured_image %}{{ product.featured_image | image_url: width: 600 }}{% endif %}"
+                data-price="{{ variant.price }}"
+                data-compare-price="{{ variant.compare_at_price | default: 0 }}"
+                data-description="{{ product.description | strip_html | escape }}"
+              >
+
+                <!-- IMAGE -->
+
+                <div class="bb__image-wrap">
+
+                  {% if product.featured_image %}
+
+                    {{
+                      product.featured_image
+                      | image_url: width: 700
+                      | image_tag:
+                        loading: 'lazy',
+                        class: 'bb__image',
+                        alt: product.featured_image.alt | default: product.title
+                    }}
+
+                  {% else %}
+
+                    <div class="bb__no-image">
+                      No image
+                    </div>
+
+                  {% endif %}
+
+                  <span class="bb__badge" data-badge aria-hidden="true"></span>
+
+                </div>
+
+
+                <!-- PRODUCT CONTENT -->
+
+                <div class="bb__product-content">
+
+                  <!-- TITLE -->
+
+                  <h3 class="bb__product-title">
+                    {{ product.title }}
+                  </h3>
+
+
+                  <!-- VARIANT (desktop only) -->
+
+                  <div class="bb__variant">
+                    {% unless product.has_only_default_variant %}{{ variant.title }}{% endunless %}
+                  </div>
+
+
+                  <!-- RATING -->
+
+                  {% if section.settings.show_reviews %}
+
+                    <div class="bb__rating">
+
+                      <span class="bb__stars">
+                        ★★★★★
+                      </span>
+
+                      {% assign review_count = product.metafields.reviews.rating_count.value %}
+
+                      {% if review_count != blank %}
+
+                        <span class="bb__reviews">
+                          ({{ review_count }} Reviews)
+                        </span>
+
+                      {% else %}
+
+                        <span class="bb__reviews">
+                          (0 Reviews)
+                        </span>
+
+                      {% endif %}
+
+                    </div>
+
+                  {% else %}
+
+                    <div class="bb__rating bb__rating--empty"></div>
+
+                  {% endif %}
+
+
+                  <!-- PRICE -->
+
+                  <div class="bb__price">
+
+                    <span class="bb__current-price">
+                      {{ variant.price | money }}
+                    </span>
+
+                    {% if section.settings.show_compare_price
+                      and variant.compare_at_price > variant.price
+                    %}
+
+                      <span class="bb__compare-price">
+                        {{ variant.compare_at_price | money }}
+                      </span>
+
+                    {% endif %}
+
+                  </div>
+
+
+                  <!-- ACTION -->
+
+                  <div class="bb__action">
+
+                    <!-- Desktop: shown while quantity is 0 -->
+                    <button
+                      type="button"
+                      class="bb__add-first"
+                      data-add-first
+                      aria-label="Add {{ product.title | escape }} to bundle"
+                    >
+                      Add to Bundle
+                    </button>
+
+                    <div
+                      class="bb__quantity"
+                      data-quantity-controls
+                    >
+
+                      <button
+                        type="button"
+                        class="bb__qty-btn"
+                        data-decrease
+                        aria-label="Decrease {{ product.title | escape }} quantity"
+                      >
+                        −
+                      </button>
+
+
+                      <span
+                        class="bb__qty-value"
+                        data-quantity
+                      >
+                        0
+                      </span>
+
+
+                      <button
+                        type="button"
+                        class="bb__qty-btn"
+                        data-increase
+                        aria-label="Increase {{ product.title | escape }} quantity"
+                      >
+                        +
+                      </button>
+
+                    </div>
+
+                  </div>
+
+                </div>
+
+              </article>
+
+            {% endfor %}
+
+          </div>
+
+        {% else %}
+
+          <div class="bb__empty">
+            Please select a collection from the Theme Editor.
+          </div>
+
+        {% endif %}
+
+      </div>
+
+
+      <!-- =========================================
+           BUNDLE BAR
+           Desktop: sticky sidebar
+           Mobile: fixed bottom bar
+      ========================================== -->
+
+      {% if section.settings.enable_sticky %}
+
+        <aside class="bb__sticky" aria-label="Your bundle">
+
+          <div class="bb__sticky-inner">
+
+            <!-- SIDEBAR HEAD (desktop only) -->
+
+            <div class="bb__sidebar-head">
+              <h3>Your Bundle</h3>
+              <span>{{ min_items }}–{{ max_items }} items</span>
+            </div>
+
+
+            <!-- STATUS ROW -->
+
+            <div class="bb__status">
+
+              <div class="bb__status-pill">
+                MIN {{ min_items }} • MAX {{ max_items }}
+              </div>
+
+
+              <div
+                class="bb__status-message"
+                data-status
+                aria-live="polite"
+              >
+                Add {{ min_items }} more items
+              </div>
+
+
+              <div
+                class="bb__counter"
+                data-counter
+              >
+                0 / {{ max_items }}
+              </div>
+
+            </div>
+
+
+            <!-- PROGRESS (desktop only) -->
+
+            <div class="bb__progress" aria-hidden="true">
+
+              <div class="bb__progress-track">
+                <div class="bb__progress-fill" data-progress-fill></div>
+                <span class="bb__progress-marker" style="left: {{ min_pct }}%;"></span>
+              </div>
+
+              <div class="bb__progress-labels">
+                <span>0</span>
+                <span class="bb__progress-min" style="left: {{ min_pct }}%;">Min {{ min_items }}</span>
+                <span>Max {{ max_items }}</span>
+              </div>
+
+            </div>
+
+
+            <!-- SELECTED PRODUCTS -->
+
+            <div class="bb__selected-area">
+
+              <div
+                class="bb__selected"
+                data-selected
+              >
+              </div>
+
+            </div>
+
+
+            <!-- FOOTER -->
+
+            <div class="bb__sticky-footer">
+
+              <div class="bb__subtotal">
+
+                <span>
+                  Subtotal
+                </span>
+
+                <strong data-subtotal>
+                  {{ 0 | money }}
+                </strong>
+
+              </div>
+
+
+              <button
+                type="button"
+                class="bb__cart-btn"
+                data-add-cart
+                disabled
+              >
+                {{ section.settings.cart_button_text }}
+              </button>
+
+            </div>
+
+
+            <div
+              class="bb__error"
+              data-error
+              hidden
+            ></div>
+
+          </div>
+
+        </aside>
+
+      {% endif %}
+
+    </div>
+
+  </div>
+
+<!-- PRODUCT DETAILS MODAL -->
+<div class="bb-product-modal" data-product-modal hidden aria-hidden="true">
+  <div class="bb-product-modal__overlay" data-modal-close></div>
+  <div class="bb-product-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="bb-modal-title-{{ section.id }}">
+    <button type="button" class="bb-product-modal__close" data-modal-close aria-label="Close product details">×</button>
+
+    <div class="bb-product-modal__media">
+      <img data-modal-image alt="" loading="lazy">
+    </div>
+
+    <div class="bb-product-modal__content">
+      <div class="bb-product-modal__top">
+        <h2 id="bb-modal-title-{{ section.id }}" data-modal-title></h2>
+        <div class="bb-product-modal__price" data-modal-price></div>
+      </div>
+
+      <div class="bb-product-modal__divider"></div>
+
+      <div class="bb-product-modal__description" data-modal-description></div>
+
+      <div class="bb-product-modal__footer">
+        <div class="bb-product-modal__footer-price" data-modal-footer-price></div>
+        <button type="button" class="bb-product-modal__add" data-modal-add>ADD TO BOX</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</section>
+
+
+<style>
+
+/* =========================================================
+   ROOT
+========================================================= */
+
+#BundleBuilder-{{ section.id }} {
+
+  --bb-brown: {{ section.settings.brown_color }};
+  --bb-cream: {{ section.settings.cream_color }};
+  --bb-red: {{ section.settings.red_color }};
+
+  --bb-white: #ffffff;
+  --bb-border: #5A2D05;
+  --bb-light-border: #ded8d0;
+  --bb-soft-border: #ece4da;
+  --bb-muted: #8a7a6a;
+  --bb-gold: #F5A000;
+
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  color: var(--bb-brown);
+  box-sizing: border-box;
+  overflow: visible;
+}
+
+#BundleBuilder-{{ section.id }} *,
+#BundleBuilder-{{ section.id }} *::before,
+#BundleBuilder-{{ section.id }} *::after {
+  box-sizing: border-box;
+}
+
+
+/* =========================================================
+   BASE (mobile foundation — unchanged look)
+========================================================= */
+
+#BundleBuilder-{{ section.id }} .bb__container {
+  width: min(1200px, calc(100% - 32px));
+  margin: 0 auto;
+  padding-bottom: 30px;
+}
+
+#BundleBuilder-{{ section.id }} .bb__layout {
+  display: block;
+}
+
+#BundleBuilder-{{ section.id }} .bb__main {
+  min-width: 0;
+}
+
+
+/* HERO */
+
+#BundleBuilder-{{ section.id }} .bb__hero {
+  width: min(825px, 100%);
+  margin: 0 auto 68px;
+  padding: 28px 24px 25px;
+  background: var(--bb-cream);
+  border: 2px solid var(--bb-brown);
+  border-radius: 28px;
+  box-shadow: 8px 8px 0 var(--bb-brown);
+  text-align: center;
+}
+
+#BundleBuilder-{{ section.id }} .bb__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 78px;
+  padding: 0 30px;
+  margin-bottom: 8px;
+  border-radius: 50px;
+  background: var(--bb-red);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: .3px;
+}
+
+#BundleBuilder-{{ section.id }} .bb__hero-title {
+  margin: 0;
+  color: var(--bb-brown);
+  font-size: clamp(30px, 4vw, 42px);
+  line-height: 1.1;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+#BundleBuilder-{{ section.id }} .bb__limit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 26px;
+  min-height: 43px;
+  padding: 8px 24px;
+  border: 2px dashed var(--bb-brown);
+  border-radius: 40px;
+  background: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .5px;
+}
+
+
+/* COLLECTION HEADER */
+
+#BundleBuilder-{{ section.id }} .bb__collection-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px;
+  margin-bottom: 18px;
+}
+
+#BundleBuilder-{{ section.id }} .bb__collection-heading {
+  min-width: 0;
+}
+
+#BundleBuilder-{{ section.id }} .bb__collection-header h2 {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.2;
+  font-weight: 700;
+}
+
+#BundleBuilder-{{ section.id }} .bb__collection-header p {
+  margin: 5px 0 0;
+  font-size: 15px;
+  line-height: 1.3;
+}
+
+#BundleBuilder-{{ section.id }} .bb__top-btn {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--bb-brown);
+  cursor: pointer;
+}
+
+#BundleBuilder-{{ section.id }} .bb__top-btn span {
+  display: block;
+  font-size: 28px;
+  line-height: 18px;
+}
+
+#BundleBuilder-{{ section.id }} .bb__top-btn small {
+  font-size: 11px;
+  line-height: 1;
+}
+
+
+/* PRODUCT GRID */
+
+#BundleBuilder-{{ section.id }} .bb__grid {
+  display: grid;
+  grid-template-columns: repeat({{ section.settings.desktop_columns }}, minmax(0, 1fr));
+  gap: 18px;
+  align-items: stretch;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+
+/* PRODUCT CARD */
+
+#BundleBuilder-{{ section.id }} .bb__product {
+  min-width: 0;
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  border: 2px solid var(--bb-brown);
+  border-radius: 20px;
+}
+
+#BundleBuilder-{{ section.id }} .bb__image-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  flex: 0 0 auto;
+  overflow: hidden;
+  background: #f7f1e8;
+}
+
+#BundleBuilder-{{ section.id }} .bb__image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+#BundleBuilder-{{ section.id }} .bb__no-image {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  color: #777;
+  font-size: 13px;
+}
+
+#BundleBuilder-{{ section.id }} .bb__badge {
+  display: none;
+}
+
+#BundleBuilder-{{ section.id }} .bb__product-content {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 13px;
+}
+
+#BundleBuilder-{{ section.id }} .bb__product-title {
+  width: 100%;
+  height: 42px;
+  min-height: 42px;
+  margin: 0;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  color: var(--bb-brown);
+  font-size: 15px;
+  line-height: 21px;
+  font-weight: 700;
+}
+
+#BundleBuilder-{{ section.id }} .bb__variant {
+  display: none;
+}
+
+#BundleBuilder-{{ section.id }} .bb__rating {
+  width: 100%;
+  height: 24px;
+  min-height: 24px;
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow: hidden;
+}
+
+#BundleBuilder-{{ section.id }} .bb__rating--empty {
+  visibility: hidden;
+}
+
+#BundleBuilder-{{ section.id }} .bb__stars {
+  flex: 0 0 auto;
+  color: #f5a000;
+  font-size: 16px;
+  line-height: 1;
+  letter-spacing: -2px;
+  white-space: nowrap;
+}
+
+#BundleBuilder-{{ section.id }} .bb__reviews {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #555555;
+  font-size: 11px;
+  line-height: 1;
+}
+
+#BundleBuilder-{{ section.id }} .bb__price {
+  width: 100%;
+  height: 29px;
+  min-height: 29px;
+  margin: 4px 0 9px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  overflow: hidden;
+}
+
+#BundleBuilder-{{ section.id }} .bb__current-price {
+  flex: 0 0 auto;
+  color: var(--bb-brown);
+  font-size: 14px;
+  line-height: 1;
+  font-weight: 700;
+}
+
+#BundleBuilder-{{ section.id }} .bb__compare-price {
+  flex: 0 0 auto;
+  color: #777777;
+  font-size: 12px;
+  line-height: 1;
+  text-decoration: line-through;
+}
+
+
+/* QUANTITY */
+
+#BundleBuilder-{{ section.id }} .bb__action {
+  width: 100%;
+  height: 44px;
+  min-height: 44px;
+  margin-top: auto;
+}
+
+#BundleBuilder-{{ section.id }} .bb__add-first {
+  display: none;
+}
+
+#BundleBuilder-{{ section.id }} .bb__quantity {
+  width: 100%;
+  height: 44px;
+  min-height: 44px;
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) 44px;
+  align-items: center;
+  overflow: hidden;
+  border: 1px solid #d8d3cd;
+  border-radius: 30px;
+  background: #ffffff;
+}
+
+#BundleBuilder-{{ section.id }} .bb__qty-btn {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--bb-brown);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+#BundleBuilder-{{ section.id }} .bb__qty-btn:hover {
+  background: #f8f4ef;
+}
+
+#BundleBuilder-{{ section.id }} .bb__qty-btn:disabled {
+  opacity: .35;
+  cursor: not-allowed;
+}
+
+#BundleBuilder-{{ section.id }} .bb__qty-value {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  color: var(--bb-brown);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+
+/* STICKY BAR */
+
+#BundleBuilder-{{ section.id }} .bb__sticky {
+  position: fixed;
+  left: 50%;
+  bottom: 8px;
+  transform: translateX(-50%);
+  width: min(1180px, calc(100% - 40px));
+  overflow: hidden;
+  background: #ffffff;
+  border: 1px solid #dedede;
+  border-radius: 18px;
+  box-shadow: 0 5px 25px rgba(0,0,0,.15);
+  z-index: 1000;
+}
+
+#BundleBuilder-{{ section.id }} .bb__sticky-inner {
+  width: 100%;
+}
+
+#BundleBuilder-{{ section.id }} .bb__sidebar-head,
+#BundleBuilder-{{ section.id }} .bb__progress {
+  display: none;
+}
+
+#BundleBuilder-{{ section.id }} .bb__status {
+  min-height: 47px;
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  align-items: center;
+  gap: 15px;
+  padding: 8px 16px;
+  background: #f7f5f1;
+  border-bottom: 2px solid var(--bb-brown);
+}
+
+#BundleBuilder-{{ section.id }} .bb__status-pill {
+  justify-self: start;
+  padding: 6px 11px;
+  border-radius: 20px;
+  background: #fff0d9;
+  color: var(--bb-brown);
+  font-size: 11px;
+  line-height: 1;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+#BundleBuilder-{{ section.id }} .bb__status-message {
+  min-width: 0;
+  overflow: hidden;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #333333;
+  font-size: 14px;
+  line-height: 1.2;
+  font-weight: 700;
+  padding-bottom:10px;
+}
+
+#BundleBuilder-{{ section.id }} .bb__counter {
+  justify-self: end;
+  color: #333333;
+  font-size: 13px;
+  line-height: 1;
+  font-weight: 700;
+}
+
+#BundleBuilder-{{ section.id }} .bb__selected-area {
+  width: 100%;
+  padding: 12px 16px 9px;
+  overflow: hidden;
+}
+
+#BundleBuilder-{{ section.id }} .bb__selected {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0 3px 3px;
+  scrollbar-width: thin;
+}
+
+#BundleBuilder-{{ section.id }} .bb__selected::-webkit-scrollbar {
+  height: 5px;
+}
+
+#BundleBuilder-{{ section.id }} .bb__selected::-webkit-scrollbar-thumb {
+  background: #999999;
+  border-radius: 10px;
+}
+
+#BundleBuilder-{{ section.id }} .bb__selected-item {
+  position: relative;
+  flex: 0 0 70px;
+  width: 70px;
+  height: 70px;
+  border: 1px solid #dddddd;
+  border-radius: 12px;
+  background: #f8f3eb;
+}
+
+#BundleBuilder-{{ section.id }} .bb__selected-item img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 11px;
+}
+
+#BundleBuilder-{{ section.id }} .bb__selected-meta,
+#BundleBuilder-{{ section.id }} .bb__empty-meta {
+  display: none;
+}
+
+#BundleBuilder-{{ section.id }} .bb__remove {
+  position: absolute;
+  top: -7px;
+  right: -5px;
+  z-index: 3;
+  width: 21px;
+  height: 21px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 5px;
+  background: #000000;
+  color: #ffffff;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+#BundleBuilder-{{ section.id }} .bb__empty-slot {
+  flex: 0 0 70px;
+  width: 70px;
+  height: 70px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #dddddd;
+  border-radius: 12px;
+  background: #fafafa;
+  color: #999999;
+  font-size: 28px;
+}
+
+#BundleBuilder-{{ section.id }} .bb__sticky-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 20px;
+  padding: 8px 16px 14px;
+}
+
+#BundleBuilder-{{ section.id }} .bb__subtotal {
+  min-width: 130px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+#BundleBuilder-{{ section.id }} .bb__subtotal span {
+  color: #666666;
+  font-size: 12px;
+  line-height: 1.2;
+}
+
+#BundleBuilder-{{ section.id }} .bb__subtotal strong {
+  color: var(--bb-brown);
+  font-size: 18px;
+  line-height: 1.2;
+}
+
+#BundleBuilder-{{ section.id }} .bb__cart-btn {
+  width: 230px;
+  min-height: 48px;
+  border: 0;
+  border-radius: 30px;
+  background: var(--bb-brown);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+#BundleBuilder-{{ section.id }} .bb__cart-btn:hover {
+  opacity: .9;
+}
+
+#BundleBuilder-{{ section.id }} .bb__cart-btn:disabled {
+  opacity: .4;
+  cursor: not-allowed;
+}
+
+#BundleBuilder-{{ section.id }} .bb__cart-btn--celebrate {
+  animation: bbCartPulse 1s ease-out 2;
+}
+
+#BundleBuilder-{{ section.id }}.is-celebrating .bb__counter {
+  animation: bbPop .6s cubic-bezier(.2, 1.6, .4, 1);
+}
+
+#BundleBuilder-{{ section.id }} .bb__error {
+  padding: 8px 16px;
+  background: #fff1f0;
+  color: #b42318;
+  text-align: center;
+  font-size: 12px;
+}
+
+#BundleBuilder-{{ section.id }} .bb__empty {
+  padding: 40px;
+  border: 2px dashed var(--bb-brown);
+  border-radius: 15px;
+  text-align: center;
+}
+
+
+/* =========================================================
+   MOBILE (unchanged)
+========================================================= */
+
+@media (max-width: 749px) {
+
+  #BundleBuilder-{{ section.id }} .bb__container {
+    width: calc(100% - 20px);
+    padding-bottom: 30px;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__hero {
+    margin-bottom: 52px;
+    margin-top: 30px;
+    padding: 18px 24px;
+    border-radius: 22px;
+    box-shadow: 6px 6px 0 var(--bb-brown);
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__eyebrow {
+    min-height: 50px;
+    padding: 0 18px;
+    font-size: 11px;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__hero-title {
+    font-size: 28px;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__limit {
+    min-height: 38px;
+    margin-top: 18px;
+    padding: 7px 15px;
+    font-size: 10px;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__collection-header {
+    padding: 0 5px;
+    margin-bottom: 12px;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__collection-header h2 {
+    font-size: 14px;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__collection-header p {
+    margin-top: 3px;
+    font-size: 11px;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__top-btn span {
+    font-size: 24px;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__top-btn small {
+    font-size: 9px;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 9px;
+    align-items: stretch;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__product {
+    border-radius: 15px;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__product-content {
+    padding: 8px;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__product-title {
+    height: 36px;
+    min-height: 36px;
+    font-size: 11.5px;
+    line-height: 18px;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__rating {
+    height: 22px;
+    min-height: 22px;
+    margin-top: 4px;
+    gap: 3px;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__stars {
+    font-size: 13px;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__reviews {
+    font-size: 8.5px;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__price {
+    height: 25px;
+    min-height: 25px;
+    margin: 3px 0 7px;
+    gap: 4px;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__current-price {
+    font-size: 11px;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__compare-price {
+    font-size: 9px;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__action {
+    height: 38px;
+    min-height: 38px;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__quantity {
+    height: 38px;
+    min-height: 38px;
+    grid-template-columns: 34px minmax(0, 1fr) 34px;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__qty-btn {
+    width: 34px;
+    height: 38px;
+    font-size: 17px;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__qty-value {
+    font-size: 12px;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__sticky {
+    width: calc(100% - 14px);
+    bottom: 7px;
+    border-radius: 15px;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__status {
+    min-height: 39px;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 5px;
+    padding: 5px 8px;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__status-pill {
+    padding: 5px 7px;
+    font-size: 8px;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__status-message {
+    font-size: 9px;
+    line-height: 1.1;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__counter {
+    font-size: 9px;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__selected-area {
+    padding: 8px 9px 5px;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__selected {
+    gap: 5px;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__selected-item,
+  #BundleBuilder-{{ section.id }} .bb__empty-slot {
+    flex: 0 0 48px;
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__selected-item img {
+    border-radius: 7px;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__empty-slot {
+    font-size: 20px;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__remove {
+    width: 16px;
+    height: 16px;
+    top: -5px;
+    right: -4px;
+    font-size: 10px;
+    border-radius: 4px;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__sticky-footer {
+    padding: 5px 9px 8px;
+    gap: 8px;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__subtotal {
+    min-width: 72px;
+    align-items: flex-start;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__subtotal span {
+    font-size: 9px;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__subtotal strong {
+    font-size: 13px;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__cart-btn {
+    flex: 1;
+    width: auto;
+    min-height: 39px;
+    font-size: 11px;
+  }
+
+}
+
+@media (max-width: 360px) {
+
+  #BundleBuilder-{{ section.id }} .bb__hero-title {
+    font-size: 24px;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__product-title {
+    font-size: 11px;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__reviews {
+    display: none;
+  }
+
+}
+
+
+/* =========================================================
+   DESKTOP REDESIGN (≥ 750px)
+========================================================= */
+
+@media (min-width: 750px) {
+
+  #BundleBuilder-{{ section.id }} .bb__container {
+    width: min(1280px, calc(100% - 64px));
+    padding: 48px 0 40px;
+  }
+
+
+  /* ---------- HERO ---------- */
+
+  #BundleBuilder-{{ section.id }} .bb__hero {
+    width: min(760px, 100%);
+    margin: 0 auto 44px;
+    padding: 0;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__eyebrow {
+    min-height: 0;
+    padding: 7px 16px;
+    margin-bottom: 16px;
+    background: var(--bb-cream);
+    color: var(--bb-red);
+    font-size: 12px;
+    letter-spacing: 1.6px;
+    text-transform: uppercase;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__hero-title {
+    font-size: clamp(34px, 3.4vw, 46px);
+    line-height: 1.08;
+    letter-spacing: -.5px;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__limit {
+    min-height: 0;
+    margin-top: 18px;
+    padding: 8px 18px;
+    border: 1px solid var(--bb-soft-border);
+    color: var(--bb-muted);
+    font-size: 12px;
+    letter-spacing: 1px;
+  }
+
+
+  /* ---------- LAYOUT ---------- */
+
+  #BundleBuilder-{{ section.id }} .bb__layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 470px;
+    gap: 36px;
+    align-items: start;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__layout--full {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+
+  /* ---------- COLLECTION HEADER ---------- */
+
+  #BundleBuilder-{{ section.id }} .bb__collection-header {
+    padding: 0 0 16px;
+    margin-bottom: 24px;
+    border-bottom: 1px solid var(--bb-soft-border);
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__collection-header h2 {
+    font-size: 22px;
+    letter-spacing: -.2px;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__collection-header p {
+    margin-top: 6px;
+    font-size: 14px;
+    color: var(--bb-muted);
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__top-btn {
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--bb-soft-border);
+    border-radius: 50%;
+    background: #fff;
+    transition: background .2s ease, border-color .2s ease;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__top-btn:hover {
+    background: var(--bb-cream);
+    border-color: var(--bb-brown);
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__top-btn span {
+    font-size: 20px;
+    line-height: 12px;
+    margin-top: 6px;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__top-btn small {
+    font-size: 9px;
+    font-weight: 700;
+  }
+
+
+  /* ---------- GRID ---------- */
+
+  #BundleBuilder-{{ section.id }} .bb__grid {
+    gap: 24px 20px;
+  }
+
+
+  /* ---------- CARD ---------- */
+
+  #BundleBuilder-{{ section.id }} .bb__product {
+    border: 1px solid var(--bb-soft-border);
+    border-radius: 18px;
+    transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__product:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 14px 34px rgba(90, 45, 5, .10);
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__product.is-selected {
+    border-color: var(--bb-brown);
+    box-shadow: 0 0 0 1px var(--bb-brown);
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__product.is-selected:hover {
+    box-shadow: 0 0 0 1px var(--bb-brown), 0 14px 34px rgba(90, 45, 5, .12);
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__image-wrap {
+    border-bottom: 1px solid var(--bb-soft-border);
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__image {
+    transition: transform .5s ease;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__product:hover .bb__image {
+    transform: scale(1.04);
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__badge {
+    display: block;
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    padding: 6px 11px;
+    border-radius: 999px;
+    background: var(--bb-brown);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1;
+    opacity: 0;
+    transform: scale(.6);
+    transition: opacity .2s ease, transform .25s cubic-bezier(.2, 1.4, .4, 1);
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__product.is-selected .bb__badge {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__product-content {
+    padding: 16px 16px 18px;
+    text-align: center;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__product-title {
+    font-size: 15px;
+    line-height: 21px;
+    text-align: center;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__variant {
+    display: block;
+    height: 18px;
+    margin-top: 2px;
+    overflow: hidden;
+    color: var(--bb-muted);
+    font-size: 12px;
+    line-height: 18px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__rating {
+    justify-content: center;
+    margin-top: 4px;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__price {
+    justify-content: center;
+    margin: 2px 0 12px;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__current-price {
+    font-size: 16px;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__compare-price {
+    font-size: 13px;
+  }
+
+
+  /* ---------- ADD / QUANTITY ---------- */
+
+  #BundleBuilder-{{ section.id }} .bb__add-first {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 44px;
+    padding: 0 16px;
+    border: 0;
+    border-radius: 999px;
+    background: var(--bb-brown);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: transform .15s ease, opacity .2s ease, box-shadow .2s ease;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__add-first:hover {
+    box-shadow: 0 8px 20px rgba(90, 45, 5, .25);
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__add-first:active {
+    transform: scale(.98);
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__add-first:disabled {
+    opacity: .35;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__product:not(.is-selected) .bb__quantity {
+    display: none;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__product.is-selected .bb__add-first {
+    display: none;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__quantity {
+    border: 1.5px solid var(--bb-brown);
+    border-radius: 999px;
+    background: var(--bb-cream);
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__qty-btn {
+    font-size: 22px;
+    transition: background .15s ease;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__qty-btn:hover {
+    background: rgba(90, 45, 5, .08);
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__qty-value {
+    font-size: 15px;
+  }
+
+
+  /* ---------- SIDEBAR ---------- */
+
+  #BundleBuilder-{{ section.id }} .bb__sticky {
+    position: sticky;
+    top: var(--bb-sidebar-top, 24px);
+    left: auto;
+    bottom: auto;
+    transform: none;
+    width: 100%;
+    max-height: calc(100vh - var(--bb-sidebar-top, 24px) - 24px);
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--bb-soft-border);
+    border-radius: 20px;
+    box-shadow: 0 16px 44px rgba(90, 45, 5, .09);
+    z-index: 2;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__sticky-inner {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__sidebar-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 20px 22px 0;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__sidebar-head h3 {
+    margin: 0;
+    color: var(--bb-brown);
+    font-size: 19px;
+    line-height: 1.2;
+    font-weight: 700;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__sidebar-head span {
+    color: var(--bb-muted);
+    font-size: 12px;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__status {
+    min-height: 0;
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "pill counter"
+      "msg msg";
+    gap: 10px;
+    padding: 12px 22px 0;
+    background: transparent;
+    border-bottom: 0;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__status-pill {
+    grid-area: pill;
+    padding: 6px 10px;
+    background: var(--bb-cream);
+    font-size: 10.5px;
+    letter-spacing: .4px;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__counter {
+    grid-area: counter;
+    padding: 6px 11px;
+    border-radius: 999px;
+    background: var(--bb-brown);
+    color: #fff;
+    font-size: 12px;
+    transition: background .3s ease;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__status-message {
+    grid-area: msg;
+    text-align: left;
+    white-space: normal;
+    color: var(--bb-brown);
+    font-size: 14px;
+    line-height: 1.35;
+  }
+
+  #BundleBuilder-{{ section.id }}.is-complete .bb__counter {
+    background: var(--bb-red);
+  }
+
+  #BundleBuilder-{{ section.id }}.is-complete .bb__status-message {
+    color: var(--bb-red);
+  }
+
+
+  /* Progress */
+
+  #BundleBuilder-{{ section.id }} .bb__progress {
+    display: block;
+    padding: 14px 22px 4px;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__progress-track {
+    position: relative;
+    height: 8px;
+    border-radius: 999px;
+    background: #f1ebe3;
+    overflow: visible;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__progress-fill {
+    width: 0;
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--bb-brown), var(--bb-red));
+    transition: width .45s cubic-bezier(.2, .8, .2, 1);
+  }
+
+  #BundleBuilder-{{ section.id }}.is-complete .bb__progress-fill {
+    background: linear-gradient(90deg, var(--bb-gold), #FFD36E, var(--bb-gold));
+    background-size: 200% 100%;
+    animation: bbShimmer 1.6s linear infinite;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__progress-marker {
+    position: absolute;
+    top: -4px;
+    width: 2px;
+    height: 16px;
+    margin-left: -1px;
+    border-radius: 2px;
+    background: var(--bb-brown);
+    opacity: .35;
+  }
+
+  #BundleBuilder-{{ section.id }}.is-min-met .bb__progress-marker {
+    opacity: 0;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__progress-labels {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    margin-top: 8px;
+    color: var(--bb-muted);
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__progress-min {
+    position: absolute;
+    top: 0;
+    transform: translateX(-50%);
+    white-space: nowrap;
+  }
+
+
+  /* Selected list */
+
+  #BundleBuilder-{{ section.id }} .bb__selected-area {
+    flex: 1 1 auto;
+    min-height: 120px;
+    margin-top: 14px;
+    padding: 14px 22px;
+    overflow-y: auto;
+    border-top: 1px solid var(--bb-soft-border);
+    scrollbar-width: thin;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__selected {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    overflow: visible;
+    padding: 0;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__selected-item {
+    flex: 0 0 auto;
+    width: 100%;
+    height: auto;
+    display: grid;
+    grid-template-columns: 52px minmax(0, 1fr) 30px;
+    align-items: center;
+    gap: 12px;
+    padding: 8px;
+    border: 1px solid var(--bb-soft-border);
+    border-radius: 12px;
+    background: #fff;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__selected-item img {
+    width: 52px;
+    height: 52px;
+    border-radius: 9px;
+    background: #f7f1e8;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__selected-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__selected-title {
+    overflow: hidden;
+    color: var(--bb-brown);
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.3;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__selected-price {
+    color: var(--bb-muted);
+    font-size: 12px;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__remove {
+    position: static;
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: #f6f0e8;
+    color: var(--bb-brown);
+    font-size: 17px;
+    transition: background .15s ease, color .15s ease;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__remove:hover {
+    background: var(--bb-red);
+    color: #fff;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__empty-slot {
+    flex: 0 0 auto;
+    width: 100%;
+    height: auto;
+    display: grid;
+    grid-template-columns: 52px minmax(0, 1fr);
+    align-items: center;
+    place-items: initial;
+    gap: 12px;
+    padding: 8px;
+    border: 1px dashed #e0d6ca;
+    border-radius: 12px;
+    background: #fcfaf7;
+    color: var(--bb-muted);
+    font-size: inherit;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__empty-icon {
+    width: 52px;
+    height: 52px;
+    display: grid;
+    place-items: center;
+    border-radius: 9px;
+    background: #f3ece3;
+    color: var(--bb-brown);
+    font-size: 22px;
+    opacity: .55;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__empty-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__empty-meta strong {
+    color: var(--bb-brown);
+    font-size: 13px;
+    opacity: .75;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__empty-meta small {
+    font-size: 11px;
+  }
+
+
+  /* Footer */
+
+  #BundleBuilder-{{ section.id }} .bb__sticky-footer {
+    display: grid;
+    gap: 12px;
+    padding: 16px 22px 20px;
+    border-top: 1px solid var(--bb-soft-border);
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__subtotal {
+    min-width: 0;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__subtotal span {
+    font-size: 13px;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__subtotal strong {
+    font-size: 21px;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__cart-btn {
+    width: 100%;
+    min-height: 52px;
+    border-radius: 999px;
+    font-size: 14px;
+    letter-spacing: .6px;
+    text-transform: uppercase;
+    transition: opacity .2s ease, box-shadow .2s ease;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__cart-btn:not(:disabled):hover {
+    opacity: 1;
+    box-shadow: 0 10px 24px rgba(90, 45, 5, .28);
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__error {
+    margin: 0 22px 16px;
+    border-radius: 10px;
+  }
+
+}
+
+/* Small desktop / tablet landscape */
+
+@media (min-width: 750px) and (max-width: 1099px) {
+
+  #BundleBuilder-{{ section.id }} .bb__container {
+    width: calc(100% - 40px);
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__layout {
+    grid-template-columns: minmax(0, 1fr) 320px;
+    gap: 24px;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__layout--full {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+}
+
+
+/* =========================================================
+   SHARED ANIMATIONS
+========================================================= */
+
+@keyframes bbCartPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(167, 25, 32, .45); transform: scale(1); }
+  30%  { transform: scale(1.04); }
+  100% { box-shadow: 0 0 0 18px rgba(167, 25, 32, 0); transform: scale(1); }
+}
+
+@keyframes bbPop {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.3); }
+  100% { transform: scale(1); }
+}
+
+@keyframes bbShimmer {
+  from { background-position: 0% 0; }
+  to   { background-position: 200% 0; }
+}
+
+
+/* =========================================================
+   CONFETTI (appended to <body>, so not section-scoped)
+========================================================= */
+
+.bb-confetti-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483000;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.bb-confetti-piece {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: var(--w);
+  height: var(--h);
+  margin: calc(var(--h) / -2) 0 0 calc(var(--w) / -2);
+  background: var(--c);
+  border-radius: var(--r);
+  opacity: 0;
+  will-change: transform, opacity;
+  animation:
+    bbConfettiMove var(--dur) var(--delay) both,
+    bbConfettiFade var(--dur) var(--delay) both;
+}
+
+@keyframes bbConfettiMove {
+  0% {
+    transform: translate3d(0, 0, 0) rotate3d(1, .3, .2, 0deg);
+    animation-timing-function: cubic-bezier(.15, .75, .35, 1);
+  }
+  32% {
+    transform: translate3d(var(--dx), var(--dy), 0) rotate3d(1, .3, .2, calc(var(--rot) * .45));
+    animation-timing-function: cubic-bezier(.45, 0, .85, .6);
+  }
+  100% {
+    transform:
+      translate3d(calc(var(--dx) + var(--drift)), calc(var(--dy) + var(--fall)), 0)
+      rotate3d(1, .3, .2, var(--rot));
+  }
+}
+
+@keyframes bbConfettiFade {
+  0%   { opacity: 0; }
+  1%   { opacity: 1; }
+  78%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.bb-confetti-toast {
+  position: fixed;
+  left: 50%;
+  top: max(16px, 14vh);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: calc(100vw - 32px);
+  padding: 12px 22px 12px 12px;
+  border-radius: 999px;
+  background: var(--bb-toast-bg, #5A2D05);
+  color: #fff;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, .25), 0 0 0 4px rgba(255, 255, 255, .65);
+  animation: bbToast 3.2s cubic-bezier(.2, .9, .25, 1.2) both;
+}
+
+.bb-confetti-toast__icon {
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .16);
+  font-size: 18px;
+}
+
+.bb-confetti-toast__text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@keyframes bbToast {
+  0%   { opacity: 0; transform: translate(-50%, -14px) scale(.85); }
+  12%  { opacity: 1; transform: translate(-50%, 0) scale(1.04); }
+  18%  { transform: translate(-50%, 0) scale(1); }
+  82%  { opacity: 1; transform: translate(-50%, 0) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -10px) scale(.96); }
+}
+
+@media (max-width: 749px) {
+  .bb-confetti-toast {
+    top: max(12px, 10vh);
+    padding: 10px 16px 10px 10px;
+    font-size: 13px;
+  }
+
+  .bb-confetti-toast__icon {
+    width: 28px;
+    height: 28px;
+    font-size: 15px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bb-confetti-toast {
+    animation-name: bbToastFade;
+  }
+
+  @keyframes bbToastFade {
+    0%, 100% { opacity: 0; transform: translate(-50%, 0); }
+    10%, 85% { opacity: 1; transform: translate(-50%, 0); }
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__cart-btn--celebrate,
+  #BundleBuilder-{{ section.id }}.is-celebrating .bb__counter,
+  #BundleBuilder-{{ section.id }}.is-complete .bb__progress-fill {
+    animation: none;
+  }
+}
+
+
+@media (min-width: 750px) {
+
+  #BundleBuilder-{{ section.id }} .bb__status {
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "pill counter"
+      "msg msg";
+
+    row-gap: 8px;
+
+    padding: 12px 22px 10px;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__status-message {
+    grid-area: msg;
+
+    margin: 0;
+
+    min-height: 24px;
+
+    display: flex;
+    align-items: center;
+
+    font-size: 14px;
+    line-height: 24px;
+
+    white-space: nowrap;
+    overflow: visible;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__progress {
+    padding: 30px 22px 8px;
+  }
+
+}
+
+</style>
+
+
+<script>
+
+(function () {
+
+  'use strict';
+
+
+  /* =======================================================
+     ROOT
+  ======================================================= */
+
+  const root =
+    document.getElementById(
+      'BundleBuilder-{{ section.id }}'
+    );
+
+  if (!root) return;
+
+
+  /* =======================================================
+     SETTINGS
+  ======================================================= */
+
+  const MIN = Number(root.dataset.min);
+  const MAX = Number(root.dataset.max);
+
+  const CELEBRATE = root.dataset.celebrate === 'true';
+  const CELEBRATE_TEXT = root.dataset.celebrateText || 'Bundle complete!';
+
+
+  /* =======================================================
+     STATE
+  ======================================================= */
+
+  const state = {
+    items: {},
+    totalQuantity: 0,
+    subtotal: 0
+  };
+
+
+  /* =======================================================
+     ELEMENTS
+  ======================================================= */
+
+  const products = root.querySelectorAll('.bb__product');
+  const selectedContainer = root.querySelector('[data-selected]');
+  const status = root.querySelector('[data-status]');
+  const counter = root.querySelector('[data-counter]');
+  const subtotal = root.querySelector('[data-subtotal]');
+  const cartButton = root.querySelector('[data-add-cart]');
+  const errorBox = root.querySelector('[data-error]');
+  const progressFill = root.querySelector('[data-progress-fill]');
+
+
+  /* =======================================================
+     MONEY
+  ======================================================= */
+
+  function formatMoney(cents) {
+
+    const amount = Number(cents || 0) / 100;
+
+    return 'Rs. ' +
+      amount.toLocaleString('en-IN', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+
+  }
+
+
+  /* =======================================================
+     GET PRODUCT DATA
+  ======================================================= */
+
+  function getProductData(card) {
+
+    return {
+      productId: card.dataset.productId,
+      variantId: card.dataset.variantId,
+      title: card.dataset.title,
+      image: card.dataset.image,
+      price: Number(card.dataset.price)
+    };
+
+  }
+
+
+  /* =======================================================
+     ADD / INCREASE
+  ======================================================= */
+
+  function increaseQuantity(variantId) {
+
+    if (state.totalQuantity >= MAX) {
+      return;
+    }
+
+    const card = root.querySelector(
+      `.bb__product[data-variant-id="${variantId}"]`
+    );
+
+    if (!card) return;
+
+    const product = getProductData(card);
+
+    if (!state.items[variantId]) {
+
+      state.items[variantId] = {
+        ...product,
+        quantity: 1
+      };
+
+    } else {
+
+      state.items[variantId].quantity += 1;
+
+    }
+
+    updateState();
+
+  }
+
+
+  /* =======================================================
+     REMOVE / DECREASE
+  ======================================================= */
+
+  function decreaseQuantity(variantId) {
+
+    const item = state.items[variantId];
+
+    if (!item) {
+      return;
+    }
+
+    item.quantity -= 1;
+
+    if (item.quantity <= 0) {
+      delete state.items[variantId];
+    }
+
+    updateState();
+
+  }
+
+
+  /* =======================================================
+     UPDATE STATE
+  ======================================================= */
+
+  function updateState() {
+
+    const previousTotal = state.totalQuantity;
+
+    let total = 0;
+    let price = 0;
+
+    Object.values(state.items).forEach(item => {
+      total += item.quantity;
+      price += item.price * item.quantity;
+    });
+
+    state.totalQuantity = total;
+    state.subtotal = price;
+
+    renderProductCards();
+    renderBundleBar();
+
+    /*
+     * Celebrate only on (MAX - 1) → MAX, i.e. 19 → 20.
+     * Dropping below and coming back triggers it again.
+     */
+    if (
+      previousTotal === MAX - 1 &&
+      state.totalQuantity === MAX
+    ) {
+      celebrate();
+    }
+
+  }
+
+
+  /* =======================================================
+     PRODUCT CARD RENDER
+  ======================================================= */
+
+  function renderProductCards() {
+
+    products.forEach(card => {
+
+      const variantId = card.dataset.variantId;
+      const item = state.items[variantId];
+
+      const quantity = card.querySelector('[data-quantity]');
+      const increase = card.querySelector('[data-increase]');
+      const decrease = card.querySelector('[data-decrease]');
+      const addFirst = card.querySelector('[data-add-first]');
+      const badge = card.querySelector('[data-badge]');
+
+      /* Always show quantity. */
+      quantity.textContent = item ? item.quantity : '0';
+
+      /* Disable + at maximum. */
+      increase.disabled = state.totalQuantity >= MAX;
+
+      /* Disable - when quantity is zero. */
+      decrease.disabled = !item || item.quantity <= 0;
+
+      /* Desktop presentation helpers. */
+      card.classList.toggle('is-selected', !!item);
+
+      if (addFirst) {
+        addFirst.disabled = state.totalQuantity >= MAX;
+      }
+
+      if (badge) {
+        badge.textContent = item ? `× ${item.quantity}` : '';
+      }
+
+    });
+
+  }
+
+
+  /* =======================================================
+     BUNDLE BAR
+  ======================================================= */
+
+  function renderBundleBar() {
+
+    root.classList.toggle('is-min-met', state.totalQuantity >= MIN);
+    root.classList.toggle('is-complete', state.totalQuantity >= MAX);
+
+    if (progressFill) {
+      const pct = MAX > 0
+        ? Math.min(100, (state.totalQuantity / MAX) * 100)
+        : 0;
+      progressFill.style.width = pct + '%';
+    }
+
+    if (counter) {
+      counter.textContent = `${state.totalQuantity} / ${MAX}`;
+    }
+
+    if (subtotal) {
+      subtotal.textContent = formatMoney(state.subtotal);
+    }
+
+
+    /* ---------------------------------------
+       STATUS
+    ---------------------------------------- */
+
+    let message;
+    let canAdd;
+
+    if (state.totalQuantity < MIN) {
+
+      const remaining = MIN - state.totalQuantity;
+
+      message = `Add ${remaining} more item${remaining === 1 ? '' : 's'}`;
+      canAdd = false;
+
+    } else if (state.totalQuantity < MAX) {
+
+      const remaining = MAX - state.totalQuantity;
+
+      message = `Minimum reached! Add up to ${remaining} more`;
+      canAdd = true;
+
+    } else {
+
+      message = `Bundle full — ${MAX} items. Ready to add to cart!`;
+      canAdd = true;
+
+    }
+
+    if (status) status.textContent = message;
+    if (cartButton) cartButton.disabled = !canAdd;
+
+
+    /* ---------------------------------------
+       SELECTED PRODUCTS
+    ---------------------------------------- */
+
+    if (!selectedContainer) return;
+
+    selectedContainer.innerHTML = '';
+
+    Object.values(state.items).forEach(item => {
+
+      for (let i = 0; i < item.quantity; i++) {
+
+        const wrapper = document.createElement('div');
+        wrapper.className = 'bb__selected-item';
+
+        const img = document.createElement('img');
+        img.src = item.image;
+        img.alt = item.title;
+        img.loading = 'lazy';
+
+        const meta = document.createElement('div');
+        meta.className = 'bb__selected-meta';
+
+        const title = document.createElement('span');
+        title.className = 'bb__selected-title';
+        title.textContent = item.title;
+
+        const itemPrice = document.createElement('span');
+        itemPrice.className = 'bb__selected-price';
+        itemPrice.textContent = formatMoney(item.price);
+
+        meta.appendChild(title);
+        meta.appendChild(itemPrice);
+
+        const remove = document.createElement('button');
+        remove.type = 'button';
+        remove.className = 'bb__remove';
+        remove.textContent = '−';
+        remove.setAttribute('aria-label', `Remove one ${item.title}`);
+
+        remove.addEventListener('click', function () {
+          decreaseQuantity(item.variantId);
+        });
+
+        wrapper.appendChild(img);
+        wrapper.appendChild(meta);
+        wrapper.appendChild(remove);
+
+        selectedContainer.appendChild(wrapper);
+
+      }
+
+    });
+
+
+    /* ---------------------------------------
+       EMPTY SLOTS
+    ---------------------------------------- */
+
+    const emptySlots = MAX - state.totalQuantity;
+
+    for (let i = 0; i < emptySlots; i++) {
+
+      const slotNumber = state.totalQuantity + i + 1;
+
+      const empty = document.createElement('div');
+      empty.className = 'bb__empty-slot';
+
+      const icon = document.createElement('span');
+      icon.className = 'bb__empty-icon';
+      icon.textContent = '+';
+
+      const meta = document.createElement('span');
+      meta.className = 'bb__empty-meta';
+
+      const strong = document.createElement('strong');
+      strong.textContent = 'Select a product';
+
+      const small = document.createElement('small');
+      small.textContent =
+        `Slot ${slotNumber} · ${slotNumber <= MIN ? 'Required' : 'Optional'}`;
+
+      meta.appendChild(strong);
+      meta.appendChild(small);
+
+      empty.appendChild(icon);
+      empty.appendChild(meta);
+
+      selectedContainer.appendChild(empty);
+
+    }
+
+  }
+
+
+  /* =======================================================
+     CELEBRATION (pure CSS + JS confetti)
+  ======================================================= */
+
+  let celebrateTimer = null;
+  let celebrateClassTimer = null;
+
+  function rand(min, max) {
+    return min + Math.random() * (max - min);
+  }
+
+  function pick(list) {
+    return list[Math.floor(Math.random() * list.length)];
+  }
+
+  function makePiece(x, y, dx, dy, fall, palette, delayMax) {
+
+    const piece = document.createElement('i');
+    piece.className = 'bb-confetti-piece';
+
+    const shape = Math.random();
+    let w, h, r;
+
+    if (shape < 0.45) {
+      w = rand(7, 11); h = rand(4, 6); r = '2px';          // flake
+    } else if (shape < 0.75) {
+      w = rand(3, 4.5); h = rand(12, 18); r = '2px';       // ribbon
+    } else {
+      w = h = rand(6, 9); r = '50%';                       // dot
+    }
+
+    const spin = rand(360, 1080) * (Math.random() < 0.5 ? -1 : 1);
+
+    piece.style.cssText =
+      `--x:${x}px;--y:${y}px;` +
+      `--dx:${dx.toFixed(1)}px;--dy:${dy.toFixed(1)}px;` +
+      `--fall:${fall.toFixed(1)}px;--drift:${rand(-70, 70).toFixed(1)}px;` +
+      `--rot:${spin.toFixed(0)}deg;` +
+      `--dur:${rand(2200, 3300).toFixed(0)}ms;--delay:${rand(0, delayMax).toFixed(0)}ms;` +
+      `--w:${w.toFixed(1)}px;--h:${h.toFixed(1)}px;--r:${r};--c:${pick(palette)};`;
+
+    return piece;
+
+  }
+
+  function celebrate() {
+
+    if (!CELEBRATE) return;
+
+    const existing = document.querySelector(
+      '.bb-confetti-layer[data-bb="{{ section.id }}"]'
+    );
+    if (existing) existing.remove();
+    clearTimeout(celebrateTimer);
+
+    const styles = getComputedStyle(root);
+    const brown = styles.getPropertyValue('--bb-brown').trim() || '#5A2D05';
+    const red = styles.getPropertyValue('--bb-red').trim() || '#A71920';
+    const cream = styles.getPropertyValue('--bb-cream').trim() || '#FFF0D9';
+
+    const palette = [brown, red, cream, '#F5A000', '#FFD36E', '#E07A2E', red, brown];
+
+    const reduceMotion =
+      window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const isMobile = vw < 750;
+
+    const layer = document.createElement('div');
+    layer.className = 'bb-confetti-layer';
+    layer.dataset.bb = '{{ section.id }}';
+    layer.setAttribute('aria-hidden', 'true');
+    layer.style.setProperty('--bb-toast-bg', brown);
+
+    const frag = document.createDocumentFragment();
+
+    if (!reduceMotion) {
+
+      /* Two side cannons firing up and inward */
+      const perCannon = isMobile ? 34 : 64;
+
+      [{ x: 0, dir: 1 }, { x: vw, dir: -1 }].forEach(cannon => {
+
+        for (let i = 0; i < perCannon; i++) {
+
+          const angle = rand(50, 82) * Math.PI / 180;
+          const velocity = vh * rand(0.55, 1.05);
+
+          const dx = Math.cos(angle) * velocity * cannon.dir;
+          const dy = -Math.sin(angle) * velocity;
+
+          frag.appendChild(
+            makePiece(cannon.x, vh + 10, dx, dy, vh * rand(0.35, 0.7), palette, 220)
+          );
+
+        }
+
+      });
+
+      /* Radial pop from the counter */
+      if (counter) {
+
+        const rect = counter.getBoundingClientRect();
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+        const burst = isMobile ? 22 : 38;
+
+        for (let i = 0; i < burst; i++) {
+
+          const angle = rand(0, Math.PI * 2);
+          const velocity = rand(70, isMobile ? 160 : 230);
+
+          frag.appendChild(
+            makePiece(
+              cx, cy,
+              Math.cos(angle) * velocity,
+              Math.sin(angle) * velocity - 50,
+              rand(180, 380),
+              palette,
+              80
+            )
+          );
+
+        }
+
+      }
+
+    }
+
+    /* Toast */
+    const toast = document.createElement('div');
+    toast.className = 'bb-confetti-toast';
+
+    const toastIcon = document.createElement('span');
+    toastIcon.className = 'bb-confetti-toast__icon';
+    toastIcon.textContent = '🎉';
+
+    const toastText = document.createElement('span');
+    toastText.className = 'bb-confetti-toast__text';
+    toastText.textContent = CELEBRATE_TEXT;
+
+    toast.appendChild(toastIcon);
+    toast.appendChild(toastText);
+    frag.appendChild(toast);
+
+    layer.appendChild(frag);
+    document.body.appendChild(layer);
+
+    /* Pulse cart button + pop counter */
+    if (cartButton) {
+      cartButton.classList.remove('bb__cart-btn--celebrate');
+      void cartButton.offsetWidth;
+      cartButton.classList.add('bb__cart-btn--celebrate');
+    }
+
+    root.classList.remove('is-celebrating');
+    void root.offsetWidth;
+    root.classList.add('is-celebrating');
+
+    clearTimeout(celebrateClassTimer);
+    celebrateClassTimer = setTimeout(function () {
+      root.classList.remove('is-celebrating');
+      if (cartButton) cartButton.classList.remove('bb__cart-btn--celebrate');
+    }, 2100);
+
+    celebrateTimer = setTimeout(function () {
+      layer.remove();
+    }, 4000);
+
+  }
+
+
+
+
+  /* =======================================================
+     PRODUCT DETAILS MODAL
+  ======================================================= */
+
+  const productModal = root.querySelector('[data-product-modal]');
+  const modalImage = root.querySelector('[data-modal-image]');
+  const modalTitle = root.querySelector('[data-modal-title]');
+  const modalPrice = root.querySelector('[data-modal-price]');
+  const modalDescription = root.querySelector('[data-modal-description]');
+  const modalFooterPrice = root.querySelector('[data-modal-footer-price]');
+  const modalAdd = root.querySelector('[data-modal-add]');
+  let activeModalVariantId = null;
+
+  function escapeHtml(value) {
+    return String(value || '').replace(/[&<>'"]/g, function (char) {
+      return {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        "'": '&#39;',
+        '"': '&quot;'
+      }[char];
+    });
+  }
+
+  function openProductModal(card) {
+    if (!productModal) return;
+
+    activeModalVariantId = card.dataset.variantId;
+
+    const title = card.dataset.title || '';
+    const image = card.dataset.image || '';
+    const price = Number(card.dataset.price || 0);
+    const comparePrice = Number(card.dataset.comparePrice || 0);
+    const description = card.dataset.description || 'Product details coming soon.';
+
+    modalTitle.textContent = title;
+    modalImage.src = image;
+    modalImage.alt = title;
+    modalPrice.innerHTML = formatMoney(price) +
+      (comparePrice > price
+        ? '<span class="bb-product-modal__compare">' + formatMoney(comparePrice) + '</span>'
+        : '');
+    modalFooterPrice.textContent = formatMoney(price);
+    modalDescription.textContent = description;
+
+    modalAdd.disabled = state.totalQuantity >= MAX;
+    modalAdd.textContent = state.totalQuantity >= MAX ? 'BUNDLE FULL' : 'ADD TO BOX';
+
+    productModal.hidden = false;
+    productModal.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('bb-modal-open');
+  }
+
+  function closeProductModal() {
+    if (!productModal) return;
+
+    productModal.hidden = true;
+    productModal.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('bb-modal-open');
+    activeModalVariantId = null;
+  }
+
+  if (productModal) {
+    productModal.querySelectorAll('[data-modal-close]').forEach(function (element) {
+      element.addEventListener('click', closeProductModal);
+    });
+
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape' && !productModal.hidden) {
+        closeProductModal();
+      }
+    });
+
+    if (modalAdd) {
+      modalAdd.addEventListener('click', function () {
+        if (!activeModalVariantId || state.totalQuantity >= MAX) return;
+
+        increaseQuantity(activeModalVariantId);
+        modalAdd.disabled = state.totalQuantity >= MAX;
+        modalAdd.textContent = state.totalQuantity >= MAX ? 'BUNDLE FULL' : 'ADD TO BOX';
+      });
+    }
+  }
+
+  /* =======================================================
+     PRODUCT EVENTS
+  ======================================================= */
+
+  products.forEach(card => {
+
+    const variantId = card.dataset.variantId;
+
+    const increase = card.querySelector('[data-increase]');
+    const decrease = card.querySelector('[data-decrease]');
+    const addFirst = card.querySelector('[data-add-first]');
+
+    increase.addEventListener('click', function () {
+      increaseQuantity(variantId);
+    });
+
+    decrease.addEventListener('click', function () {
+      decreaseQuantity(variantId);
+    });
+
+    if (addFirst) {
+      addFirst.addEventListener('click', function () {
+        increaseQuantity(variantId);
+      });
+    }
+
+    card.addEventListener('click', function (event) {
+      if (event.target.closest('button, input, select, textarea, a')) {
+        return;
+      }
+
+      openProductModal(card);
+    });
+
+  });
+
+
+  /* =======================================================
+     ADD BUNDLE TO SHOPIFY CART
+  ======================================================= */
+
+  if (cartButton) {
+
+    cartButton.addEventListener('click', async function () {
+
+      if (
+        state.totalQuantity < MIN ||
+        state.totalQuantity > MAX
+      ) {
+        return;
+      }
+
+      cartButton.disabled = true;
+
+      const originalText = cartButton.textContent;
+
+      cartButton.textContent = 'Adding...';
+
+      if (errorBox) errorBox.hidden = true;
+
+      const items = Object.values(state.items).map(item => ({
+        id: Number(item.variantId),
+        quantity: Number(item.quantity)
+      }));
+
+      try {
+
+        const response = await fetch(
+          window.Shopify.routes.root + 'cart/add.js',
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            },
+            body: JSON.stringify({ items: items })
+          }
+        );
+
+        if (!response.ok) {
+
+          let message = 'Unable to add bundle to cart.';
+
+          try {
+            const error = await response.json();
+            message = error.description || message;
+          } catch (e) {}
+
+          throw new Error(message);
+
+        }
+
+        await response.json();
+
+        /*
+         * Rebuy Smart Cart
+         * If Rebuy exists, open it. Otherwise go to normal cart.
+         */
+
+        if (
+          window.Rebuy &&
+          window.Rebuy.SmartCart &&
+          typeof window.Rebuy.SmartCart.show === 'function'
+        ) {
+
+          /* Give Shopify a moment to update the cart before opening Rebuy. */
+          setTimeout(function () {
+            window.Rebuy.SmartCart.show();
+          }, 300);
+
+        } else {
+
+          /* Fallback. */
+          window.location.href = window.Shopify.routes.root + 'cart';
+
+        }
+
+      } catch (error) {
+
+        console.error('Bundle cart error:', error);
+
+        if (errorBox) {
+          errorBox.textContent =
+            error.message || 'Something went wrong. Please try again.';
+          errorBox.hidden = false;
+        }
+
+        cartButton.disabled = false;
+        cartButton.textContent = originalText;
+
+      }
+
+    });
+
+  }
+
+
+  /* =======================================================
+     INITIAL STATE
+  ======================================================= */
+
+  updateState();
+
+
+})();
+
+</script>
+
+
+{% schema %}
+
+{
+  "name": "Bundle Builder",
+
+  "settings": [
+
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "Bundle collection"
+    },
+
+    {
+      "type": "range",
+      "id": "min_items",
+      "label": "Minimum items",
+      "min": 1,
+      "max": 50,
+      "step": 1,
+      "default": 15
+    },
+
+    {
+      "type": "range",
+      "id": "max_items",
+      "label": "Maximum items",
+      "min": 1,
+      "max": 50,
+      "step": 1,
+      "default": 20
+    },
+
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Hero eyebrow",
+      "default": "YOUR BOX, YOUR FLAVOURS"
+    },
+
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Hero heading",
+      "default": "PICK 15 TO 20 BARS YOUR WAY"
+    },
+
+    {
+      "type": "text",
+      "id": "limit_text",
+      "label": "Hero limit text",
+      "default": "MIN 15 • MAX 20 ITEMS"
+    },
+
+    {
+      "type": "text",
+      "id": "cart_button_text",
+      "label": "Cart button text",
+      "default": "Add Bundle To Cart"
+    },
+
+    {
+      "type": "range",
+      "id": "desktop_columns",
+      "label": "Desktop columns",
+      "min": 2,
+      "max": 4,
+      "step": 1,
+      "default": 3
+    },
+
+    {
+      "type": "checkbox",
+      "id": "enable_sticky",
+      "label": "Enable sticky bundle bar",
+      "info": "Desktop: sticky sidebar. Mobile: fixed bottom bar.",
+      "default": true
+    },
+
+    {
+      "type": "range",
+      "id": "sidebar_offset",
+      "label": "Desktop sidebar top offset",
+      "info": "Increase if your theme has a sticky header covering the sidebar.",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "default": 24
+    },
+
+    {
+      "type": "checkbox",
+      "id": "show_reviews",
+      "label": "Show reviews",
+      "default": true
+    },
+
+    {
+      "type": "checkbox",
+      "id": "show_compare_price",
+      "label": "Show compare-at price",
+      "default": true
+    },
+
+    {
+      "type": "header",
+      "content": "Celebration"
+    },
+
+    {
+      "type": "checkbox",
+      "id": "enable_celebration",
+      "label": "Confetti when bundle is full",
+      "default": true
+    },
+
+    {
+      "type": "text",
+      "id": "celebration_text",
+      "label": "Celebration message",
+      "default": "Bundle complete! You're all set"
+    },
+
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+
+    {
+      "type": "color",
+      "id": "brown_color",
+      "label": "Brown",
+      "default": "#5A2D05"
+    },
+
+    {
+      "type": "color",
+      "id": "cream_color",
+      "label": "Cream",
+      "default": "#FFF0D9"
+    },
+
+    {
+      "type": "color",
+      "id": "red_color",
+      "label": "Red / Burgundy",
+      "default": "#A71920"
+    }
+
+  ],
+
+  "presets": [
+    {
+      "name": "Bundle Builder"
+    }
+  ]
+
+}
+
+{% endschema %}
+
+<style>
+@media (min-width: 750px) {
+
+  #BundleBuilder-{{ section.id }} .bb__sticky-footer {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 18px 22px 22px;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__subtotal {
+    min-width: 0;
+    width: 100%;
+
+    display: flex;
+    flex-direction: row;
+
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 10px;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__subtotal span {
+    color: var(--bb-muted);
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__subtotal strong {
+    color: var(--bb-brown);
+    font-size: 22px;
+    font-weight: 800;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__cart-btn {
+    width: 100%;
+    min-height: 52px;
+
+    border-radius: 999px;
+
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: .5px;
+  }
+
+}
+
+
+
+/* =========================================================
+   PRODUCT DETAILS MODAL
+========================================================= */
+
+#BundleBuilder-{{ section.id }} .bb-product-modal[hidden] {
+  display: none !important;
+}
+
+#BundleBuilder-{{ section.id }} .bb-product-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+#BundleBuilder-{{ section.id }} .bb-product-modal__overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,.62);
+  backdrop-filter: blur(4px);
+}
+
+/* FIXED DESKTOP SIZE — SAME FOR EVERY PRODUCT */
+#BundleBuilder-{{ section.id }} .bb-product-modal__dialog {
+  position: relative;
+  z-index: 1;
+  width: 1100px;
+  height: 550px;
+  max-width: calc(100vw - 40px);
+  max-height: calc(100vh - 40px);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  overflow: hidden;
+  background: #fff;
+  border-radius: 22px;
+  box-shadow: 0 24px 80px rgba(0,0,0,.30);
+}
+
+/* FIXED LEFT IMAGE AREA */
+#BundleBuilder-{{ section.id }} .bb-product-modal__media {
+  width: 100%;
+  height: 550px;
+  min-height: 0;
+  overflow: hidden;
+  background: #fff0d9;
+}
+
+#BundleBuilder-{{ section.id }} .bb-product-modal__media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  object-fit: cover;
+}
+
+/* RIGHT SIDE NEVER CHANGES MODAL HEIGHT */
+#BundleBuilder-{{ section.id }} .bb-product-modal__content {
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 42px 44px 28px;
+  overflow: hidden;
+}
+
+#BundleBuilder-{{ section.id }} .bb-product-modal__top {
+  min-width: 0;
+}
+
+#BundleBuilder-{{ section.id }} .bb-product-modal__top h2 {
+  margin: 0 48px 18px 0;
+  color: var(--bb-brown);
+  font-size: 38px;
+  line-height: 1.08;
+  font-weight: 800;
+}
+
+#BundleBuilder-{{ section.id }} .bb-product-modal__price {
+  color: var(--bb-brown);
+  font-size: 22px;
+  line-height: 1.2;
+  font-weight: 800;
+}
+
+#BundleBuilder-{{ section.id }} .bb-product-modal__compare {
+  margin-left: 8px;
+  color: #777;
+  font-size: 15px;
+  text-decoration: line-through;
+  font-weight: 500;
+}
+
+#BundleBuilder-{{ section.id }} .bb-product-modal__divider {
+  flex: 0 0 auto;
+  height: 1px;
+  margin: 24px 0;
+  background: #ddd;
+}
+
+#BundleBuilder-{{ section.id }} .bb-product-modal__description {
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 8px;
+  color: #222;
+  font-size: 16px;
+  line-height: 1.58;
+  white-space: pre-line;
+}
+
+#BundleBuilder-{{ section.id }} .bb-product-modal__description::-webkit-scrollbar {
+  width: 4px;
+}
+
+#BundleBuilder-{{ section.id }} .bb-product-modal__description::-webkit-scrollbar-thumb {
+  background: #d7d7d7;
+  border-radius: 10px;
+}
+
+#BundleBuilder-{{ section.id }} .bb-product-modal__close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 5;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 50%;
+  background: #fff;
+  color: #111;
+  font-size: 29px;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 5px 18px rgba(0,0,0,.14);
+}
+
+#BundleBuilder-{{ section.id }} .bb-product-modal__footer {
+  flex: 0 0 auto;
+  margin-top: auto;
+  padding-top: 24px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+#BundleBuilder-{{ section.id }} .bb-product-modal__footer-price {
+  flex: 0 0 auto;
+  color: var(--bb-brown);
+  font-size: 22px;
+  font-weight: 800;
+}
+
+#BundleBuilder-{{ section.id }} .bb-product-modal__add {
+  flex: 1;
+  min-height: 52px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--bb-brown);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: .4px;
+  cursor: pointer;
+}
+
+#BundleBuilder-{{ section.id }} .bb-product-modal__add:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+#BundleBuilder-{{ section.id }}.bb-modal-open {
+  overflow: hidden;
+}
+
+/* MOBILE — FIXED POPUP SIZE FOR EVERY PRODUCT */
+@media (max-width: 749px) {
+  #BundleBuilder-{{ section.id }} .bb-product-modal {
+    padding: 12px;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb-product-modal__dialog {
+    width: min(420px, calc(100vw - 24px));
+    height: min(720px, calc(100vh - 24px));
+    max-width: none;
+    max-height: none;
+    display: flex;
+    flex-direction: column;
+    border-radius: 18px;
+  }
+
+  /* SAME IMAGE HEIGHT FOR ALL PRODUCTS */
+  #BundleBuilder-{{ section.id }} .bb-product-modal__media {
+    flex: 0 0 330px;
+    width: 100%;
+    height: 330px;
+    min-height: 330px;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb-product-modal__media img {
+    width: 100%;
+    height: 330px;
+    object-fit: cover;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb-product-modal__close {
+    top: 10px;
+    right: 10px;
+    width: 36px;
+    height: 36px;
+    font-size: 26px;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb-product-modal__content {
+    flex: 1 1 auto;
+    height: auto;
+    min-height: 0;
+    padding: 16px 14px 0;
+    overflow: hidden;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb-product-modal__top h2 {
+    margin: 0 38px 10px 0;
+    font-size: 24px;
+    line-height: 1.08;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb-product-modal__price {
+    font-size: 18px;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb-product-modal__compare {
+    font-size: 12px;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb-product-modal__divider {
+    margin: 14px 0;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb-product-modal__description {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    padding-right: 4px;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb-product-modal__footer {
+    flex: 0 0 auto;
+    margin: 10px -14px 0;
+    padding: 10px 14px 12px;
+    gap: 10px;
+    background: #fff;
+    border-top: 1px solid #eee;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb-product-modal__footer-price {
+    font-size: 17px;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb-product-modal__add {
+    min-height: 44px;
+    font-size: 11px;
+  }
+}
+
+
+@media (max-width: 749px) {
+
+  #BundleBuilder-{{ section.id }} .bb__status {
+    min-height: 48px !important;
+    gap: 8px !important;
+    padding: 8px 12px !important;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__status-pill {
+    padding: 7px 10px !important;
+
+    font-size: 11px !important;
+    line-height: 1 !important;
+    font-weight: 800 !important;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__status-message {
+    font-size: 13px !important;
+    line-height: 1.2 !important;
+    font-weight: 700 !important;
+  }
+
+  #BundleBuilder-{{ section.id }} .bb__counter {
+    font-size: 13px !important;
+    line-height: 1 !important;
+    font-weight: 800 !important;
+  }
+
+}
+
+
+</style>

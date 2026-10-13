@@ -1,0 +1,174 @@
+<div class="custom-tabs">
+  {% assign tabs = product.metafields.custom.tabs.value %}
+
+  {% if tabs != blank %}
+    <div class="tabs-wrapper">
+      {% for tab in tabs %}
+        <div class="tab-item">
+          {% assign title = tab.title | metafield_tag %}
+          {% assign titleHandle = title
+            | replace: '<span class="metafield-single_line_text_field">'
+            | replace: '</span>'
+            | handle
+          %}
+          <button class="tab-header" data-index="{{ forloop.index0 }}">
+            <span class="tab-title">
+              {%- if titleHandle == 'ingredients' -%}
+                Inside Every Bite
+              {%- elsif titleHandle == 'description' -%}
+                What This Bar Actually Does
+              {%- elsif titleHandle == 'benefits' -%}
+                Why Your Body Loves It
+              {%- else -%}
+                {{- title -}}
+              {%- endif -%}
+            </span>
+            <span class="tab-icon">+</span>
+          </button>
+
+          <div class="tab-content">
+            <div class="tab-inner">
+              {% if tab.image %}
+                <div class="tab-image">
+                  <img src="{{ tab.image | image_url }}" alt="{{ tab.title }}">
+                </div>
+              {% endif %}
+
+              <div class="tab-text">
+                {{ tab.content | metafield_tag }}
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+</div>
+
+<style>
+  .tabs-wrapper .tab-item {
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 12px;
+  }
+
+  .tabs-wrapper .tab-header {
+    width: 100%;
+    background: none;
+    border: none;
+    padding-top: 16px;
+    text-align: left;
+    display: flex;
+    justify-content: space-between;
+    cursor: pointer;
+    font-size: 18px;
+    color: #910606;
+    font-weight: 500;
+    text-transform: uppercase;
+    padding-left: 0px;
+  }
+  .tabs-wrapper .tab-image {
+    margin: 20px 0px;
+  }
+  .tabs-wrapper .tab-title {
+      font-family: "Rubik", sans-serif;
+
+  }
+  .tabs-wrapper .tab-text {
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 150%;
+    letter-spacing: 0;
+    color: #1e1e1e;
+    margin: 10px 0px;
+  }
+  .tabs-wrapper .tab-icon {
+    font-size: 22px;
+    transition: 0.3s;
+  }
+  .tabs-wrapper .tab-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease;
+  }
+  .tabs-wrapper .tab-header.active .tab-icon {
+    content: "-";
+    font-size: 28px;
+  }
+  .tabs-wrapper .tab-item:first-child .tab-header {
+    padding-top: 0px;
+  }
+
+  @media(max-width: 768px) {
+    .tabs-wrapper .tab-header {
+      font-size: 14px;
+      padding-top: 14px;
+    }
+    .tabs-wrapper .tab-item {
+      padding-bottom: 8px;
+    }
+    .tabs-wrapper .tab-icon {
+      font-size: 18px;
+    }
+    .tabs-wrapper .tab-header.active .tab-icon {
+      font-size: 24px;
+    }
+    .tabs-wrapper .tab-text {
+      font-size: 12px;
+      margin: 5px 0px;
+    }
+    .tabs-wrapper .tab-image {
+      margin: 10px 0px;
+    }
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const headers = document.querySelectorAll('.tab-header');
+
+    headers.forEach((header) => {
+      header.addEventListener('click', function () {
+        const content = this.nextElementSibling;
+        const isOpen = this.classList.contains('active');
+
+        // Close all tabs
+        document.querySelectorAll('.tab-header').forEach((h) => {
+          h.classList.remove('active');
+          h.querySelector('.tab-icon').textContent = '+';
+        });
+
+        document.querySelectorAll('.tab-content').forEach((c) => {
+          c.style.maxHeight = null;
+        });
+
+        // Open clicked tab
+        if (!isOpen) {
+          this.classList.add('active');
+          content.style.maxHeight = content.scrollHeight + 'px';
+          this.querySelector('.tab-icon').textContent = '-';
+        }
+      });
+    });
+
+    if (headers.length > 0) {
+      const firstHeader = headers[0];
+      const firstContent = firstHeader.nextElementSibling;
+
+      firstHeader.classList.add('active');
+      firstContent.style.maxHeight = firstContent.scrollHeight + 'px';
+      firstHeader.querySelector('.tab-icon').textContent = '-';
+    }
+  });
+</script>
+
+{% schema %}
+{
+  "name": "Tab section",
+  "settings": [],
+  "presets": [
+    {
+      "name": "tab-section"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,456 @@
+
+{% doc %}
+  @prompt
+    i want copy right section with editable form, shop name edit, years edit with mobile optimized and also want font size colors, also want designed by option with linkable 
+{% enddoc %}
+ 
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+
+{% comment %} This Code is added by Suraj (2 sep 11Pm trying to remove white border at the end) {% endcomment %}
+{% comment %} html,
+body {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+footer,
+.footer,
+.shopify-section,
+.shopify-section-group-footer-group {
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+} {% endcomment %}
+
+.ai-copyright-section-{{ ai_gen_id }} {
+  display: block;
+  width: 100%;
+  padding: 45px 0;
+  background-color: {{ block.settings.background_color }};
+  text-align: {{ block.settings.text_alignment }};
+}
+.ai-copyright-container-{{ ai_gen_id }} {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* COPYRIGHT TEXT */
+.ai-copyright-text-{{ ai_gen_id }} {
+  color: {{ block.settings.text_color }};
+  font-size: {{ block.settings.font_size }}px;
+  line-height: 1.5;
+  margin: 0;
+  padding: 0;
+
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* PAYMENT CARDS - DESKTOP */
+.payment-methods-image {
+  width: 500px !important;
+  height: 150px !important;
+  object-fit: contain;
+  display: block;
+
+  position: absolute;
+  right: {{ block.settings.payment_position }}px;
+  top: 50%;
+  transform: translateY(-50%);
+
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* LINKS */
+.ai-copyright-link-{{ ai_gen_id }} {
+  color: {{ block.settings.link_color }};
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.ai-copyright-link-{{ ai_gen_id }}:hover {
+  color: {{ block.settings.link_hover_color }};
+  text-decoration: underline;
+}
+
+/* SEPARATOR */
+.ai-copyright-separator-{{ ai_gen_id }} {
+  margin: 0 8px;
+}
+
+
+/* =========================
+   MOBILE
+   ========================= */
+
+@media screen and (max-width: 749px) {
+
+  .ai-copyright-section-{{ ai_gen_id }} {
+    padding: {{ block.settings.mobile_padding_top }}px
+             {{ block.settings.mobile_padding_horizontal }}px
+             {{ block.settings.mobile_padding_bottom }}px;
+  }
+
+  .ai-copyright-container-{{ ai_gen_id }} {
+    width: 100%;
+    position: relative;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    gap: 4px;
+  }
+
+  .ai-copyright-text-{{ ai_gen_id }} {
+    font-size: {{ block.settings.mobile_font_size }}px;
+    line-height: 1.4;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    text-align: center;
+    white-space: normal;
+  }
+
+  /* PAYMENT CARDS BELOW COPYRIGHT */
+  .payment-methods-image {
+    position: static;
+
+    width: 283px !important;
+    height: 90px !important;
+
+    transform: none;
+
+    display: block;
+    margin: 1px auto 0 !important;
+    padding: 0 !important;
+  }
+
+  .ai-copyright-separator-{{ ai_gen_id }} {
+    margin: 0 4px;
+  }
+}
+
+{% endstyle %}
+
+<copyright-section-{{ ai_gen_id }}
+  class="ai-copyright-section-{{ ai_gen_id }}"
+  {{ block.shopify_attributes }}
+>
+  <div class="ai-copyright-container-{{ ai_gen_id }}">
+    <p class="ai-copyright-text-{{ ai_gen_id }}">
+      {% if block.settings.copyright_symbol %}©{% endif %}
+      {% if block.settings.show_year %}
+        {% if block.settings.year_type == 'current' %}
+          {{ 'now' | date: '%Y' }}
+        {% else %}
+          {{ block.settings.custom_year }}
+        {% endif %}
+      {% endif %}
+      {% if block.settings.show_shop_name %}
+        {% if block.settings.shop_name != blank %}
+          {{ block.settings.shop_name }}
+        {% else %}
+          {{ shop.name }}
+        {% endif %}
+      {% endif %}
+      {% if block.settings.additional_text != blank %}
+        {{ block.settings.additional_text }}
+      {% endif %}
+      {% if block.settings.show_designed_by and block.settings.designer_name != blank %}
+        <span class="ai-copyright-separator-{{ ai_gen_id }}">|</span>
+        Designed by
+        {% if block.settings.designer_link != blank %}
+          <a href="{{ block.settings.designer_link }}" class="ai-copyright-link-{{ ai_gen_id }}" target="_blank" rel="noopener">{{ block.settings.designer_name }}</a>
+        {% else %}
+          {{ block.settings.designer_name }}
+        {% endif %}
+      {% endif %}
+    </p>
+<img 
+  src="https://cdn.shopify.com/s/files/1/0951/5122/7201/files/group_1321324419.webp?v=1774438357"
+  class="payment-methods-image"
+  alt="Payment methods"
+/>
+  </div>
+</copyright-section-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class CopyrightSection{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+      }
+
+      connectedCallback() {
+      }
+    }
+
+    customElements.define('copyright-section-{{ ai_gen_id }}', CopyrightSection{{ ai_gen_id }});
+  })();
+</script>
+
+{% schema %}
+
+
+{
+  "name": "Copyright section",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "checkbox",
+      "id": "copyright_symbol",
+      "label": "Show © symbol",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_year",
+      "label": "Show year",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "year_type",
+      "label": "Year type",
+      "options": [
+        {
+          "value": "current",
+          "label": "Current year"
+        },
+        {
+          "value": "custom",
+          "label": "Custom year"
+        }
+      ],
+      "default": "current"
+    },
+    {
+      "type": "text",
+      "id": "custom_year",
+      "label": "Custom year",
+      "default": "2026"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_shop_name",
+      "label": "Show shop name",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "shop_name",
+      "label": "Shop name"
+    },
+    {
+      "type": "text",
+      "id": "additional_text",
+      "label": "Additional text",
+      "default": "All rights reserved."
+    },
+    {
+      "type": "header",
+      "content": "Designed by"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_designed_by",
+      "label": "Show designed by",
+      "default": false
+    },
+    {
+      "type": "text",
+      "id": "designer_name",
+      "label": "Designer name",
+      "default": "Your Company"
+    },
+    {
+      "type": "url",
+      "id": "designer_link",
+      "label": "Designer link"
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "label": "Text alignment",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "range",
+      "id": "font_size",
+      "label": "Desktop font size",
+      "min": 10,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "mobile_font_size",
+      "label": "Mobile font size",
+      "min": 10,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "link_color",
+      "label": "Link color",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "link_hover_color",
+      "label": "Link hover color",
+      "default": "#666666"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#f5f5f5"
+    },
+    {
+      "type": "header",
+      "content": "Desktop spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "padding_horizontal",
+      "label": "Horizontal padding",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 20
+    },
+   {
+  "type": "header",
+  "content": "Payment card position"
+},
+{
+  "type": "range",
+  "id": "payment_position",
+  "label": "Desktop payment card position",
+  "min": 0,
+  "max": 500,
+  "step": 5,
+  "unit": "px",
+  "default": 0
+},
+{
+  "type": "range",
+  "id": "mobile_payment_position",
+  "label": "Mobile payment card position",
+  "min": 0,
+  "max": 200,
+  "step": 5,
+  "unit": "px",
+  "default": 0
+},
+    {
+      "type": "header",
+      "content": "Mobile spacing"
+    },
+    {
+      "type": "range",
+      "id": "mobile_padding_top",
+      "label": "Top padding",
+      "min": 0,
+      "max": 80,
+      "step": 5,
+      "unit": "px",
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "mobile_padding_bottom",
+      "label": "Bottom padding",
+      "min": 0,
+      "max": 80,
+      "step": 5,
+      "unit": "px",
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "mobile_padding_horizontal",
+      "label": "Horizontal padding",
+      "min": 0,
+      "max": 80,
+      "step": 5,
+      "unit": "px",
+      "default": 15
+    }
+  ],
+  "presets": [
+    {
+      "name": "Copyright section"
+    }
+  ]
+}
+{% endschema %}

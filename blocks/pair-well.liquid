@@ -1,0 +1,274 @@
+<style>
+.product-details {
+    overflow: hidden;
+}
+.upsell-title-wrap {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+}
+
+h3.label-class {
+  font-family: "Rubik", sans-serif;
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 100%;
+  margin: 0px;
+  color: #910606;
+  text-transform: uppercase;
+}
+
+.arrow-block {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.arrow {
+    width: 15px;
+    height: 15px;
+    display: flex;
+    border-radius: 100%;
+    align-items: center;
+    justify-content: center;
+    transition: 0.3s;
+    cursor: pointer;
+}
+.upsell-swiper-slide .button {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  line-height: 1;
+  padding: 0;
+  border-radius: 6px;
+  background: #1E1E1E;
+  transition: all 0.3s ease-in-out;
+}
+.upsell-swiper-slide .button:hover {
+  background: #910606;
+}
+.upsell-swiper-slide .add-to-cart-text {
+  font-size: 24px;
+}
+.upsell-main {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.upsell-main .upsell-img {
+  max-width: 72px;
+  min-width: 72px;
+  width: 100%;
+  height: 100%;
+  display: inline-block;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.upsell-title {
+  font-family: "Rubik", sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 120%;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  color: #910606;
+  margin-bottom: 8px;
+}
+.upsell-price .price-sale {
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 100%;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  color: #020C07;
+}
+.upsell-price .price-compare {
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 100%;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  color: rgba(30, 30, 30, 0.5);
+}
+.upsell-swiper-wrapper {
+  margin-top: 20px;
+}
+.upsell-box {
+  background: rgba(145, 6, 6, 0.05);
+  padding: 12px;
+  border-radius: 12px;
+}
+@media only screen and (max-width: 1551px) {
+  h3.label-class {
+    font-size: 16px;
+  }
+}
+@media only screen and (max-width: 749px) {
+  .upsell-swiper-wrapper {
+    margin-top: 7px;
+  }
+  .upsell-title {
+    font-size: 12px;
+  }
+  .upsell-swiper-slide .button {
+    width: 30px;
+    height: 30px;
+  }
+  .upsell-price .price-sale {
+    font-size: 14px;
+  }
+  .upsell-price .price-compare {
+    font-size: 13px;
+  }
+}
+</style>
+
+{%- assign upsell_products = product.metafields.custom.upsell_products.value -%}
+{%- if upsell_products != blank -%}
+{%- assign unique_id = section.id -%}
+
+<div class="upsell-swiper-wrapper">
+  
+  <div class="upsell-title-wrap">
+    <h3 class="label-class">Randeep Also Loves</h3>
+  </div>
+
+  <div class="swiper upsell-swiper upsell-swiper-{{ unique_id }}">
+    <div class="swiper-wrapper upsells-swiper-wrapper">
+      {%- for upsell_product in upsell_products -%}
+        {%- assign variant = upsell_product.selected_or_first_available_variant -%}
+
+            <div class="swiper-slide upsell-swiper-slide">
+              <div class="upsell-box">
+
+                <div class="upsell-main">
+                  
+                    <a href="{{ upsell_product.url }}" class="upsell-img">
+                      <img 
+                      src="{{ upsell_product.featured_image | image_url }}"
+                      alt="{{ upsell_product.title }}"
+                      loading="lazy" width="" height=""
+                      >
+                  </a>
+                  
+                
+
+                  <div>
+                    <p class="upsell-title">{{ upsell_product.title | truncate: 65 }}</p>
+
+                    {% assign variant = upsell_product.selected_or_first_available_variant %}
+
+                      <p class="upsell-price">
+                        
+                        {% if variant.compare_at_price > variant.price %}
+                          <span class="price-sale">{{ variant.price | money }}</span>
+                          <span class="price-compare"><s>{{ variant.compare_at_price | money }}</s></span>
+                        {% else %}
+                          <span class="price-normal">{{ variant.price | money }}</span>
+                        {% endif %}
+
+                      </p>
+                  </div>
+
+                  <div>
+                    {% assign variant = upsell_product.selected_or_first_available_variant %}
+                    {% assign can_add_to_cart = variant.available %}
+
+                    <form method="post" action="/cart/add">
+                      <input type="hidden" name="id" value="{{ variant.id }}">
+
+                      {%- liquid
+                        assign default_add_to_cart_text = 'actions.add_to_cart' | t
+                        assign product_variant_media = variant.featured_media.preview_image | image_url: width: 100
+                        if variant.featured_media.preview_image == blank
+                            assign product_variant_media = upsell_product.featured_media.preview_image | image_url: width: 100
+                        endif
+                      -%}
+
+                      <add-to-cart-component
+                        ref="addToCartButtonContainer"
+                        data-product-variant-media="{{ product_variant_media }}"
+                        data-add-to-cart-animation="{{ settings.add_to_cart_animation }}"
+                      >
+                        <button
+                          type="submit"
+                          name="add"
+                          ref="addToCartButton"
+                          on:click="/handleClick"
+                          class="button"
+                          {% unless can_add_to_cart %}disabled{% endunless %}
+                        >
+                          <span class="add-to-cart-text">
+                            +
+                          </span>
+
+                          <span aria-hidden="true" class="add-to-cart-text--added">
+                            +
+                          </span>
+                        </button>
+                      </add-to-cart-component>
+                    </form>
+                  </div>
+                </div>
+              </div>
+        </div>
+      {%- endfor -%}
+    </div>
+  </div>
+</div>
+{%- endif -%}
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var swiper_bundle = new Swiper('.swiper.upsell-swiper-{{ unique_id }}', {
+    slidesPerView: 1.4,
+    spaceBetween: 8,
+    watchSlidesProgress: true,
+    watchSlidesVisibility: true,
+    breakpoints: {
+      300: { slidesPerView: 1,spaceBetween: 6, },
+      992: { slidesPerView: 1.2 ,spaceBetween:12,},
+      1660: { slidesPerView: 1.4 ,spaceBetween:8,},
+    }
+  });
+});
+
+$(document).ready(function() {
+  function keepUpsellButtonsEnabled() {
+    $('.upsell-quick-add-wrapper .quick-add__button--add').each(function() {
+      var $btn = $(this);
+      
+      $btn.prop('disabled', false);
+      $btn.removeAttr('disabled');
+      
+      $btn.removeClass('disabled');
+    });
+  }
+  $(document).on('optionValueSelectionChanged', function() {
+    setTimeout(function() {
+      keepUpsellButtonsEnabled();
+    }, 100); 
+  });
+$(document).on('variant:changed variant:updated change', function() {
+    setTimeout(keepUpsellButtonsEnabled, 100);
+  });
+});
+</script>
+
+
+{% schema %}
+{
+  "name": "Pair-well",
+  "tag": null,
+  "settings": [
+  ],
+  "presets": [
+    {
+      "name": "Pair-well"
+    }
+  ]
+}
+{% endschema %}

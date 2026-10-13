@@ -1,0 +1,561 @@
+<script id="rebuy-dynamic-bundle-template" type="text/template">
+<div id="rebuy-bundle-widget" class="rebuy-bundle-widget">
+  <h2 id="rebuy-bundle-title" class="rebuy-bundle-title">Frequently Bought Together</h2>
+  <div id="rebuy-bundle-message" class="rebuy-bundle-discount-message">
+  Grab Your Favourite Snacks!
+ </div>
+
+ <div id="rebuy-bundle-container" class="rebuy-bundle-container">
+    <div id="rebuy-bundle-flex-row" class="rebuy-bundle-flex-row">
+     
+      <div id="rebuy-bundle-products-section" class="rebuy-bundle-products-section">
+        <template v-for="(product, index) in products">
+          <div class="rebuy-bundle-product-item" v-bind:class="{'rebuy-product-unselected': !product.selected}">
+           
+            <div class="rebuy-product-checkbox-wrapper">
+              <input type="checkbox" v-model="product.selected" class="rebuy-product-checkbox">
+            </div>
+          
+            <div class="rebuy-product-image-area" @click="location.href = learnMoreURL(product)">
+                <a :href="product.url" class="rebuy-product-link">
+                  <img :src="itemImage(product, product.selected_variant, '240x240')" :alt="product.title" class="rebuy-product-image">
+                </a>
+            </div>
+
+            <div class="rebuy-product-details">
+                <!-- REVIEW ROW: filled by the script at the bottom of this file -->
+                <div class="fbt-review" v-bind:data-url="product.handle ? '/products/' + product.handle : learnMoreURL(product)"></div>
+
+                <h3 class="rebuy-product-title">
+                  <a :href="product.url" class="rebuy-product-title-link" v-html="product.title"></a>
+                </h3>
+
+                <div class="rebuy-product-price">
+ <div v-if="variantOnSale(product, product.selected_variant)">
+   <span class="rebuy-money sale">
+     <span class="sr-only">Sale price</span>
+     <span
+       v-html="formatMoney(variantPrice(product, product.selected_variant)).replace(/\.00/g, '')"
+     ></span>
+   </span>
+
+   <span class="rebuy-money compare-at">
+     <span class="sr-only">Original price</span>
+     <span
+       v-html="formatMoney(variantCompareAtPrice(product, product.selected_variant)).replace(/\.00/g, '')"
+     ></span>
+   </span>
+ </div>
+
+ <div v-else>
+   <span class="rebuy-money">
+     <span class="sr-only">Price</span>
+     <span
+       v-html="formatMoney(variantPrice(product, product.selected_variant)).replace(/\.00/g, '')"
+     ></span>
+   </span>
+ </div>
+</div>
+
+              
+                <div class="rebuy-product-options" v-if="showVariantSelect(product)">
+                  <select
+                    class="rebuy-product-variant-select"
+                    v-bind:aria-label="'variant of ' + product.title"
+                    v-model="product.selected_variant_id"
+                    v-on:change="selectVariant(product)">
+                    <template v-for="variant in product.variants">
+                      <option v-bind:value="variant.id" v-text="variant.title"></option>
+                    </template>
+                  </select>
+                </div>
+            </div>
+          </div>
+        
+          <div class="rebuy-product-divider" v-if="index < products.length - 1">
+            <span class="rebuy-plus-icon">+</span>
+          </div>
+        </template>
+      </div>
+    
+      <div id="rebuy-bundle-summary" class="rebuy-bundle-summary">
+       
+        <div id="rebuy-bundle-total" class="rebuy-bundle-total">
+          <template v-if="products">
+            <div class="rebuy-total-row highlight">
+               <span class="rebuy-bundle-total-label">Total:</span>
+               <span class="rebuy-bundle-total-price" v-html="formatMoney(subtotal()).replace('.00', '').replace(',00', '')"></span>
+                <span class="rebuy-money compare-at">
+                               <span class="sr-only">Original price</span>
+                               <span v-html="formatMoney(compareAtSubtotal()).replace('.00', '').replace(',00', '')"></span>
+               </span>
+            </div>
+          </template>
+        </div>
+      
+        <div id="rebuy-bundle-actions" class="rebuy-bundle-actions">
+          <button id="rebuy-add-to-cart-button" class="rebuy-add-to-cart-button" v-on:click="addSelectedProductsToCart()">
+            Add to cart
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</script>
+
+<style>
+/* ===== PASTE THE COPIED @font-face RULE HERE (replace this whole comment) ===== */
+/* It starts with: @font-face { font-family: JudgemeStar; src: url("data:application/x-font-woff;... */
+
+
+#rebuy-bundle-widget {
+  --rebuy-color-main: #4E2D12;
+  --rebuy-color-hover: #91191C;
+  --rebuy-bg: #fdf6e7;
+  --rebuy-card-bg: #ffffff;
+  --rebuy-text: #333333;
+  --rebuy-muted: #999999;
+  --rebuy-border: #4E2D12;
+  --font-sans: 'Saol Display', system-ui, -apple-system, sans-serif;
+  font-family: var(--font-sans);
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 0px;
+  box-sizing: border-box;
+  color: var(--rebuy-text);
+}
+
+#rebuy-bundle-widget * { box-sizing: border-box; }
+
+/* Header */
+#rebuy-bundle-widget #rebuy-bundle-title {
+  text-align: center;
+  margin: 0 0 10px;
+  font-weight: 600;
+  color: #1E1E1E !important;
+  font-size: 2.3rem !important;
+}
+#rebuy-bundle-widget .rebuy-bundle-discount-message {
+  margin: 0 0 25px;
+  text-align: center;
+  font-size: 14px;
+  color: #555;
+  font-weight: 500;
+}
+
+/* Layout Container */
+#rebuy-bundle-widget #rebuy-bundle-container {
+  background-color: #FBF7F2 !important;
+  border-radius: 12px;
+  padding: 10px;
+  width: 100%;
+}
+
+#rebuy-bundle-widget #rebuy-bundle-flex-row {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 25px;
+  align-items: start;
+}
+
+/* Products Section */
+#rebuy-bundle-widget #rebuy-bundle-products-section {
+  display: flex;
+  gap: 2%;
+  overflow-x: auto;
+  padding-bottom: 15px;
+  align-items: stretch;
+  scrollbar-width: thin;
+}
+
+#rebuy-bundle-widget .rebuy-bundle-product-item {
+  background: var(--rebuy-card-bg);
+  border: 1px solid var(--rebuy-border);
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  min-width: 180px;
+  max-width: 200px;
+  width: 200px;
+  flex: 0 0 auto;
+  position: relative;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+@media (max-width: 768px) {
+  #rebuy-bundle-widget .rebuy-bundle-product-item {
+    min-width: 42% !important;
+    max-width: 45% !important;
+    width: 42% !important;
+  }
+}
+
+#rebuy-bundle-widget .rebuy-product-checkbox-wrapper {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 10;
+}
+#rebuy-bundle-widget .rebuy-product-checkbox {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--rebuy-color-main);
+  cursor: pointer;
+}
+
+#rebuy-bundle-widget .rebuy-product-image-area {
+  height: 150px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+}
+#rebuy-bundle-widget .rebuy-product-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover !important;
+  object-position: center !important;
+}
+
+#rebuy-bundle-widget .rebuy-product-details {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex-grow: 1;
+}
+
+#rebuy-bundle-widget .rebuy-product-title {
+  font-size: 13px;
+  margin: 0;
+  line-height: 1.4;
+  color: var(--rebuy-text);
+  font-weight: 500;
+  height: 38px;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+#rebuy-bundle-widget .rebuy-product-title-link {
+  color: var(--rebuy-color-main);
+  text-decoration: none;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: left;
+  font-family: 'Rubik', sans-serif !important;
+  font-size: 14px;
+  font-weight: 600;
+  font-style: var(--body-font-style);
+}
+
+/* Review row */
+#rebuy-bundle-widget .fbt-review {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start; /* use center for centred */
+  gap: 6px;
+  margin: 2px 0;
+  line-height: 1.6;
+}
+#rebuy-bundle-widget .fbt-review:empty { display: none; }
+
+/* Judge.me native star (icon font) */
+#rebuy-bundle-widget .fbt-stars {
+  position: relative;
+  display: inline-block;
+  flex: none;
+  font-family: 'JudgemeStar' !important;
+  font-size: 13px;
+  line-height: 1;
+  letter-spacing: 5px !important;      /* gap between stars */
+  color: #FFA800;
+  -webkit-text-stroke: 1.3px #FFA800;  /* stroke on the orange stars */
+  white-space: nowrap;
+}
+
+/* bottom layer: solid cream stars (unfilled colour) */
+#rebuy-bundle-widget .fbt-stars .fbt-empty::before {
+  content: "\e000\e000\e000\e000\e000";
+  color: #fff4dc;
+  -webkit-text-stroke: 20;
+}
+
+/* top layer: orange stars, clipped to the rating width */
+#rebuy-bundle-widget .fbt-stars .fbt-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+#rebuy-bundle-widget .fbt-stars .fbt-fill::before {
+  content: "\e000\e000\e000\e000\e000";
+  color: #FFA800;
+}
+
+#rebuy-bundle-widget .fbt-review-label {
+  font-size: 14px;
+  line-height: 22.4px; /* native label line-height */
+  font-weight: 400;
+  color: rgba(0,0,0,.81);
+  font-family: 'Montserrat', sans-serif;
+  white-space: nowrap;
+}
+
+#rebuy-bundle-widget .rebuy-product-price {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+#rebuy-bundle-widget .rebuy-price-amount,
+#rebuy-bundle-widget .rebuy-money.sale,
+#rebuy-bundle-widget .rebuy-money:not(.compare-at) {
+  font-size: 14px;
+  color: var(--rebuy-color-main) !important;
+  font-weight: 700;
+  white-space: nowrap;
+}
+#rebuy-bundle-widget .rebuy-money.compare-at {
+  font-size: 12px !important;
+  color: #000;
+  font-weight: 400;
+  text-decoration: line-through;
+}
+
+#rebuy-bundle-widget .rebuy-product-variant-select {
+  width: 100%;
+  padding: 6px;
+  border: 1px solid var(--rebuy-border);
+  border-radius: 4px;
+  font-size: 11px;
+  background: #fff;
+  margin-top: auto;
+}
+
+#rebuy-bundle-widget .rebuy-product-divider {
+  display: flex; align-items: center; justify-content: center; min-width: 25px;
+}
+#rebuy-bundle-widget .rebuy-plus-icon {
+  font-size: 20px; color: var(--rebuy-color-main);
+}
+
+#rebuy-bundle-widget #rebuy-bundle-summary {
+  background: rgba(255,255,255,0.5);
+  border-radius: 8px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 15px;
+  text-align: center;
+  height: 100%;
+}
+
+#rebuy-bundle-widget #rebuy-bundle-total {
+  display: flex; flex-direction: column; gap: 6px;
+}
+#rebuy-bundle-widget .rebuy-total-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 14px;
+  gap: 10px;
+}
+#rebuy-bundle-widget .rebuy-total-row.highlight {
+  border-top: 1px dashed rgba(0,0,0,0.1);
+  padding-top: 8px;
+  margin-top: 4px;
+}
+#rebuy-bundle-widget .rebuy-total-row .rebuy-money.compare-at {
+  font-size: 13px !important;
+}
+
+#rebuy-bundle-widget .rebuy-bundle-total-price {
+  font-size: 20px; font-weight: 700; color: var(--rebuy-color-main) !important;
+}
+
+#rebuy-bundle-widget #rebuy-add-to-cart-button {
+  width: 100%;
+  padding: 14px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  background: var(--rebuy-color-main) !important;
+  color: #ffffff !important;
+  border: none;
+  border-radius: 12px;
+  text-transform: uppercase;
+  transition: background-color 0.2s ease;
+}
+#rebuy-bundle-widget #rebuy-add-to-cart-button:hover {
+  background: var(--rebuy-color-hover) !important;
+}
+
+@media (max-width: 900px) {
+  #rebuy-bundle-widget #rebuy-bundle-flex-row {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  #rebuy-bundle-widget #rebuy-bundle-summary {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    background: #fff;
+  }
+  #rebuy-bundle-widget #rebuy-bundle-actions {
+    min-width: 200px;
+  }
+  #rebuy-bundle-widget .rebuy-total-row {
+    justify-content: flex-start; gap: 10px;
+  }
+  #rebuy-bundle-widget #rebuy-bundle-title {
+    text-align: center;
+    margin: 0 0 10px;
+    font-weight: 600;
+    color: var(--rebuy-color-main) !important;
+    font-size: 27px !important;
+}
+}
+
+@media (max-width: 600px) {
+  #rebuy-bundle-widget #rebuy-bundle-summary {
+    flex-direction: column;
+    text-align: center;
+    padding:10px !important;
+  }
+  #rebuy-bundle-widget #rebuy-bundle-actions {
+    width: 100%;
+  }
+  #rebuy-bundle-widget .rebuy-total-row {
+    justify-content: center;
+  }
+  #rebuy-bundle-widget .rebuy-plus-icon { display: none; }
+  #rebuy-bundle-widget .rebuy-product-divider { min-width: 5px; }
+}
+
+/* Mobile: keep the review row inside the narrow card */
+@media (max-width: 768px) {
+  #rebuy-bundle-widget .fbt-review {
+    gap: 5px;
+    max-width: 100%;
+    min-width: 0;
+    flex-wrap: nowrap;
+  }
+  #rebuy-bundle-widget .fbt-stars {
+    font-size: 11px;
+    letter-spacing: 2px !important;
+  }
+  #rebuy-bundle-widget .fbt-review-label {
+    font-size: 12px;
+    line-height: 1.4;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+</style>
+
+<script>
+/* FBT review stars: reads rating + count from each product's own page, then draws Judge.me native font stars */
+(function () {
+  var cache = {};
+
+  function starsHTML(rating) {
+    var shown = Math.round(rating * 2) / 2; // native theme rounds to the nearest half star
+    var pct = Math.max(0, Math.min(5, shown)) / 5 * 100;
+    return '<span class="fbt-empty"></span><span class="fbt-fill" style="width:' + pct + '%"></span>';
+  }
+
+  function findAggregate(o) {
+    if (!o || typeof o !== 'object') return null;
+    if (o.aggregateRating) return o.aggregateRating;
+    var keys = Object.keys(o);
+    for (var i = 0; i < keys.length; i++) {
+      var r = findAggregate(o[keys[i]]);
+      if (r) return r;
+    }
+    return null;
+  }
+
+  function parsePage(html) {
+    var doc = new DOMParser().parseFromString(html, 'text/html');
+    var rating = null, count = null;
+
+    // 1) JSON-LD aggregateRating (most reliable)
+    var lds = doc.querySelectorAll('script[type="application/ld+json"]');
+    for (var i = 0; i < lds.length && !rating; i++) {
+      try {
+        var ar = findAggregate(JSON.parse(lds[i].textContent));
+        if (ar) {
+          rating = parseFloat(ar.ratingValue);
+          count = parseInt(ar.reviewCount || ar.ratingCount, 10);
+        }
+      } catch (e) {}
+    }
+
+    // 2) Judge.me preview badge data attributes
+    if (!rating || !count) {
+      var badge = doc.querySelector('.jdgm-prev-badge[data-average-rating]');
+      if (badge) {
+        rating = parseFloat(badge.getAttribute('data-average-rating'));
+        count = parseInt(badge.getAttribute('data-number-of-reviews'), 10);
+      }
+    }
+
+    // 3) Theme rating block (aria-label + visible text)
+    if (!rating || !count) {
+      var wrap = doc.querySelector('.rating-wrapper');
+      var r = wrap && wrap.querySelector('.rating[aria-label]');
+      if (r) {
+        var m = r.getAttribute('aria-label').match(/(\d+(\.\d+)?)/);
+        var c = wrap.textContent.match(/(\d[\d,]*)/);
+        if (m) rating = parseFloat(m[1]);
+        if (c) count = parseInt(c[1].replace(/,/g, ''), 10);
+      }
+    }
+
+    return (rating && count) ? { rating: rating, count: count } : null;
+  }
+
+  function fill(el) {
+    if (el.getAttribute('data-fbt-done')) return;
+    var url = el.getAttribute('data-url');
+    if (!url) return;
+    el.setAttribute('data-fbt-done', '1');
+
+    if (!cache[url]) {
+      cache[url] = fetch(url, { credentials: 'same-origin' })
+        .then(function (r) { return r.text(); })
+        .then(parsePage)
+        .catch(function () { return null; });
+    }
+    cache[url].then(function (d) {
+      if (!d) { console.warn('[FBT reviews] no rating found for', url); return; }
+      el.setAttribute('aria-label', 'Rating of this product is ' + d.rating.toFixed(2) + ' out of 5');
+      el.innerHTML = '<span class="fbt-stars">' + starsHTML(d.rating) + '</span>' +
+                     '<span class="fbt-review-label">' + d.count + (d.count === 1 ? ' review' : ' reviews') + '</span>';
+    });
+  }
+
+  function run() {
+    var els = document.querySelectorAll('#rebuy-bundle-widget .fbt-review[data-url]');
+    for (var i = 0; i < els.length; i++) fill(els[i]);
+  }
+
+  var t;
+  new MutationObserver(function () { clearTimeout(t); t = setTimeout(run, 150); })
+    .observe(document.documentElement, { childList: true, subtree: true });
+  run();
+})();
+</script>

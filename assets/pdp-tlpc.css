@@ -1,0 +1,342 @@
+.product-information__grid--limit-details .product-details>.group-block {
+    max-width: 100% !important;
+    padding: 0px;
+}
+.product-information .product-information__grid {
+    max-width: 1640px;
+    width: 100%;
+    margin: auto;
+}
+.product-information .product-details {
+    padding-left: 80px !important;
+}
+.product-information .product_title div p {
+    font-family: "Rubik", sans-serif;
+    font-weight: 700;
+    font-size: 40px;
+    line-height: 120%;
+    letter-spacing: 0;
+    text-transform: uppercase;
+    color: #910606;
+}
+.product-information .image-block {
+    margin-top: 5px;
+}
+.variant-pick .relatedvaraint {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.variant-pick .variant-img {
+    width: 110px;
+    height: 120px;
+    border-radius: 999px;
+    position: relative;
+}
+
+.variant-pick .variant-img.active:before {
+    width: 110px;
+    height: 120px;
+    position: absolute;
+    content: "";
+    top: 50%;
+    left: 50%;
+    transform: translate(-50% , -50%);
+    border-radius: 8px;
+    border: 1px solid #4F2B08;
+}
+.variant-pick .pdp-sidebar-title {
+    font-family: "Rubik", sans-serif;
+    font-weight: 500;
+    font-size: 20px;
+    line-height: 120%;
+    letter-spacing: 0;
+    text-transform: uppercase;
+    color: #910606;
+    margin-bottom: 16px;
+}
+.discount-badge {
+  background: #00970A;
+  color: #ffffff;
+  font-size: 14px;
+  padding: 6px 10px;
+  border-radius: 20px;
+  font-weight: 500;
+  margin-left: 8px;
+}
+.price {
+    font-weight: 700;
+    font-size: 24px;
+    line-height: 120% !important;
+    letter-spacing: 0;
+    color: #020C07;
+}
+.compare-at-price {
+    font-weight: 400;
+    font-size: 22px;
+    line-height: 100%;
+    letter-spacing: 0;
+    color: rgba(30, 30, 30, 0.5);
+}
+.product-information .add-to-cart-button .svg-wrapper {
+    display: none;
+}
+.product-information .add-to-cart-button {
+    font-family: "Rubik", sans-serif;
+    font-weight: 500;
+    font-size: 18px;
+    line-height: 150%;
+    letter-spacing: 0;
+    background: #4E2D12;
+    color: #ffffff;
+    transition: all 0.3s ease-in-out;
+}
+.product-information .add-to-cart-button:hover {
+    background: #910606;
+}
+.accordion .details__header {
+    font-size: 18px;
+    color: #910606;
+    font-family: "Rubik", sans-serif;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+.accordion .details-content p {
+    font-size: 14px;
+    color: #000000;
+}
+.product-information slideshow-component {
+    flex-direction: row-reverse;
+    align-items: flex-start;
+    padding-block: 3px;
+}
+.product-information slideshow-controls[pagination-position=center][thumbnails] {
+    width: auto;
+}
+.product-information .slideshow-controls__thumbnails-container {
+    overflow-y: scroll;
+}
+.product-information .slideshow-controls__thumbnails {
+    flex-direction: column;
+    max-width: fit-content;
+}
+.product-information .slideshow-controls__thumbnails .slideshow-control img,
+.product-information .slideshow-controls__thumbnails .slideshow-control,
+.product-information .product-media-container img  {
+    border-radius: 16px;
+} 
+.product-information .tax-note {
+    display: block;
+    font-weight: 300;
+    font-size: 14px;
+    line-height: 140%;
+    letter-spacing: 0;
+    color: #020c07 !important;
+    margin-top: 15px;
+}  
+.product-information .product-form-buttons {
+    margin-top: 15px;
+}
+
+.variant-option__button-label {
+    display: flex;
+    flex-direction: column;
+    position: relative; 
+    overflow: initial; 
+}
+
+.variant-badged {
+    position: absolute;
+    top: -23px;
+    z-index: 122;
+    padding: 0 10px;
+    border-radius: 6px 6px 0 0;
+    color: #1E1E1E; 
+}
+
+.Most-Popular { background: #F9D00D; }
+.Best-Value { background: #EF9121; }
+.variant-option__button-label:has(:checked) {
+    background: #4F2B081F;
+    color: #000 !important;
+    border-color: #4F2B08 !important;
+}
+
+.variant-option__button-label {
+    border-radius: 8px;
+    background: #F5F5F5;
+    border-color: transparent;
+    flex: none;
+    max-width: 142px;
+    width: 100%;
+}
+.variant-option__button-label:has(:checked):hover {
+    background: #f5f5f5;
+}
+.variant-option--equal-width-buttons .variant-option__button-label__text {
+    font-family: Rubik;
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 120%;
+    letter-spacing: 0;
+    text-transform: uppercase;
+    color: #4F2B08;
+    padding-top: 2px;
+}
+
+.variant-option--buttons legend {
+    font-family: Rubik, sans-serif;
+    font-weight: 500;
+    font-size: 20px;
+    line-height: 120%;
+    letter-spacing: 0;
+    text-transform: uppercase;
+    color: #910606;
+    margin-bottom: 16px;
+}
+
+.variant-option--equal-width-buttons {
+    display: flex;
+}
+.product-information .slideshow-controls__thumbnails {
+    max-height: 680px !important;
+}
+
+.slideshow-controls__thumbnails .slideshow-control {
+    height: 70px !important;
+    flex: none;
+}
+@media only screen and (max-width: 1551px) {
+    .product-information .product-details {
+        padding-left: 50px!important;
+    }
+    .product-information .slideshow-controls__thumbnails {
+    max-height: 500px !important;
+}
+    .product-information .product_title div p {
+        font-size: 36px;
+    }
+    .variant-pick .pdp-sidebar-title {
+        font-size: 16px;
+    }
+    .price {
+        font-size: 20px;
+    }
+    .compare-at-price {
+        font-size: 18px;
+    }
+}
+@media only screen and (max-width: 768px) {   
+    .variant-pick .pdp-sidebar-title {
+        font-size: 14px;
+    }
+} 
+@media only screen and (max-width: 749px) { 
+    .product-information .product-form-buttons {
+        margin-top: 10px;
+    }  
+    .product-information .product-details {
+        padding-left: 0px!important;
+        margin-top: 10px;
+    }
+    .variant-pick .relatedvaraint {
+        gap: 8px;
+        padding: 2px;
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+        overflow-x: auto;
+        overflow-y: visible;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+    }
+    .variant-pick .relatedvaraint::-webkit-scrollbar {
+        display: none;
+    }
+    .variant-pick .variant-blk {
+        flex-shrink: 0;
+    }
+    .variant-pick .pdp-sidebar-title {
+        margin-bottom: 10px;
+    }
+    .product-information slideshow-component {
+        padding-block: 10px;
+        padding-inline: 10px;
+    }
+    .product-information {
+        padding: 0px;
+    }
+    .product-information .product_title div p {
+        font-size: 22px;
+    }
+    .metafield-multi_line_text_field {
+        font-size: 14px;
+        display: inline-block;
+    }
+    .variant-pick .variant-img.active:before {
+        width: 90px;
+        height: 100px;
+    }
+    .variant-pick .variant-img {
+        width: 90px;
+        height: 100px;
+        flex-shrink: 0;
+    }
+    .price {
+        font-size: 18px;
+    }
+    .compare-at-price {
+        font-size: 16px;
+    }
+    .discount-badge {
+        font-size: 12px;
+        padding: 4px 6px;
+        margin-left: 5px;
+    }
+    .accordion .details__header {
+        font-size: 16px;
+    }
+
+    /* Select Pack: clean 2x2 grid with room for badges */
+    .variant-option--equal-width-buttons {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        column-gap: 12px;
+        row-gap: 28px;
+        padding-top: 18px;
+    }
+    .variant-option--equal-width-buttons .variant-option__button-label {
+        position: relative;
+        width: 100%;
+        max-width: none;
+        min-height: 88px;
+        margin: 0;
+    }
+
+    /* Badges anchor to their own card only - no bleed onto neighbours */
+    .variant-option--equal-width-buttons .variant-badged {
+        left: 50%;
+        transform: translateX(-50%);
+        text-align: center;
+        white-space: nowrap;
+    }
+}
+@media screen and (max-width: 767px) {
+    .product-information slideshow-component {
+        flex-direction: column !important;
+    }
+    .product-information .slideshow-controls__thumbnails {
+        flex-direction: row !important;
+        max-height: unset !important;
+    }
+    .product-information .slideshow-controls__thumbnails-container {
+        overflow-x: scroll !important;
+        max-width: 100% !important;
+    }
+    .product-information slideshow-controls[pagination-position=center][thumbnails]{
+        max-width: 100%;
+    }
+    .slideshow-controls__thumbnails .slideshow-control {
+        width: 70px;
+    }
+}

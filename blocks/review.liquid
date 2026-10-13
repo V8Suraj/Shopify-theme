@@ -1,0 +1,272 @@
+{% liquid
+  assign block_settings = block.settings
+  assign product = closest.product
+  assign rating = product.metafields.reviews.rating.value.rating
+  assign scale_max = product.metafields.reviews.rating.value.scale_max
+  assign rating_count = product.metafields.reviews.rating_count
+
+  if request.visual_preview_mode and product == blank
+    assign product = collections.all.products.first
+    assign rating = product.metafields.reviews.rating.value | default: 4
+    assign scale_max = product.metafields.reviews.rating.value.scale_max | default: 5
+    assign rating_count = product.metafields.reviews.rating_count | default: 3
+  endif
+-%}
+
+{%- if rating != blank -%}
+  {% liquid
+    assign star_count_rating = scale_max
+    assign decimal_rating = 0
+    assign decimal = rating | modulo: 1
+
+    if decimal >= 0.3 and decimal <= 0.7
+      assign decimal_rating = 0.5
+    elsif decimal > 0.7
+      assign decimal_rating = 1
+    endif
+
+    # When the decimal rating is 0.5 or 1 it counts as one star (the half star is drawn with a clip path).
+    assign decimal_rounded = decimal_rating | ceil
+
+    assign svg_filled_stars = rating | floor | plus: decimal_rounded
+  %}
+
+  <div
+    class="rating-wrapper justify-{{ block_settings.alignment }} rating-color--{{ block_settings.rating_color }}"
+    {{ block.shopify_attributes }}
+  >
+    <svg
+      class="visually-hidden"
+      style="width: 0; height: 0;"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 32 32"
+      role="presentation"
+    >
+      <defs>
+        <clipPath id="half-clip">
+          <rect x="0" y="0" width="16" height="32"></rect>
+        </clipPath>
+
+        <symbol xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" id="star">
+         <path  d="M31.547 12a.848.848 0 00-.677-.577l-9.427-1.376-4.224-8.532a.847.847 0 00-1.516 0l-4.218 8.534-9.427 1.355a.847.847 0 00-.467 1.467l6.823 6.664-1.612 9.375a.847.847 0 001.23.893l8.428-4.434 8.432 4.432a.847.847 0 001.229-.894l-1.615-9.373 6.822-6.665a.845.845 0 00.214-.869z" />
+
+        </symbol>
+      </defs>
+    </svg>
+    <div
+      class="rating"
+      aria-label="{{ 'accessibility.rating' | t: rating: rating }}"
+    >
+      {% if block_settings.stars_style == 'single' %}
+        <svg
+          class="stars {% if svg_filled_stars > 0 %}filled-star{% endif %}"
+          viewBox="0 0 32 32"
+          role="presentation"
+        >
+          <use xlink:href="#star"></use>
+        </svg>
+      {% else %}
+        {%- for star in (1..star_count_rating) -%}
+          {%- assign is_half = false -%}
+          {%- if decimal_rating == 0.5 and star == svg_filled_stars -%}
+            {%- assign is_half = true -%}
+          {%- endif -%}
+          <svg
+            class="stars {% if star <= svg_filled_stars and is_half == false %}filled-star{% endif %}"
+            viewBox="0 0 32 32"
+            role="presentation"
+          >
+            <use xlink:href="#star"></use>
+            {%- if is_half -%}
+              <use xlink:href="#star" class="half-fill" clip-path="url(#half-clip)"></use>
+            {%- endif -%}
+          </svg>
+        {%- endfor -%}
+      {% endif %}
+    </div>
+
+    {%- if block_settings.show_number or block_settings.stars_style == 'single' -%}
+      <p class="rating-count {{ block_settings.type_preset }}">
+        {%- if block_settings.stars_style == 'single' -%}
+          <span aria-hidden="true">{{- rating | round: 1 }}</span>
+        {%- endif -%}
+        {%- if block_settings.stars_style == 'single' and block_settings.show_number -%}
+          <span class="rating-count-separator">|</span>
+        {%- endif -%}
+        {%- if block_settings.show_number -%}
+          {{- rating_count }}
+          {{ 'content.reviews' | t }}
+        {%- endif -%}
+      </p>
+    {%- endif -%}
+  </div>
+{%- endif -%}
+
+{% stylesheet %}
+  .rating-wrapper {
+    --star-orange: #ffa500;
+    --star-empty: #fff4dc; /* soft cream instead of hard white */
+    --star-size: 14px;
+    width: 100%;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .rating-wrapper,
+  .rating {
+    display: flex;
+    align-items: center;
+  }
+
+  .rating-wrapper.justify-right {
+    flex-direction: row-reverse;
+  }
+
+  .rating {
+    gap: 4px;
+  }
+
+  .stars {
+    height: var(--star-size);
+    width: var(--star-size);
+    fill: var(--star-empty);
+    stroke: var(--star-orange);
+    stroke-width: 3.5px;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+    overflow: visible;
+  }
+
+  .filled-star {
+    fill: var(--star-orange);
+  }
+
+  /* left half of the last star */
+  .stars .half-fill {
+    fill: var(--star-orange);
+  }
+
+  .rating-wrapper .rating-text,
+  .rating-wrapper .rating-count,
+  .rating-wrapper .rating-count-separator {
+    color: #555;
+    margin: 0;
+    white-space: nowrap;
+  }
+
+  .rating-count-separator {
+    opacity: 0.4;
+    padding: 0 6px;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:names.product_review_stars",
+  "tag": null,
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "t:content.resource_reference_product_review"
+    },
+    {
+      "type": "paragraph",
+      "content": "t:content.app_required_for_ratings"
+    },
+    {
+      "type": "select",
+      "id": "stars_style",
+      "label": "t:settings.style",
+      "options": [
+        {
+          "value": "outline",
+          "label": "t:options.outline"
+        },
+        {
+          "value": "shaded",
+          "label": "t:options.shaded"
+        },
+        {
+          "value": "single",
+          "label": "t:options.single"
+        }
+      ],
+      "default": "shaded"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_number",
+      "label": "t:settings.review_count",
+      "default": false
+    },
+    {
+      "type": "select",
+      "id": "rating_color",
+      "label": "t:settings.color",
+      "options": [
+        {
+          "value": "foreground",
+          "label": "t:options.text"
+        },
+        {
+          "value": "primary",
+          "label": "t:options.body"
+        }
+      ],
+      "default": "primary"
+    },
+    {
+      "type": "header",
+      "content": "t:content.typography"
+    },
+    {
+      "type": "select",
+      "id": "type_preset",
+      "label": "t:settings.preset",
+      "options": [
+        {
+          "value": "paragraph",
+          "label": "t:options.paragraph"
+        },
+        {
+          "value": "h1",
+          "label": "t:options.h1"
+        },
+        {
+          "value": "h2",
+          "label": "t:options.h2"
+        },
+        {
+          "value": "h3",
+          "label": "t:options.h3"
+        },
+        {
+          "value": "h4",
+          "label": "t:options.h4"
+        },
+        {
+          "value": "h5",
+          "label": "t:options.h5"
+        },
+        {
+          "value": "h6",
+          "label": "t:options.h6"
+        }
+      ],
+      "default": "paragraph"
+    },
+    {
+      "type": "text_alignment",
+      "id": "alignment",
+      "label": "t:settings.alignment",
+      "default": "left"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:names.product_review_stars",
+      "category": "t:categories.product"
+    }
+  ]
+}
+{% endschema %}

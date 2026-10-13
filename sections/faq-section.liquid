@@ -1,0 +1,308 @@
+<section class="faq-pro-section">
+  <div class="faq-wrapper {{ section.settings.faq_style }}">
+    <div class="faq-right">
+      {% if section.settings.image != blank %}
+        <img 
+          src="{{ section.settings.image | image_url }}" 
+          alt="FAQ Image" height="" width=""
+        >
+      {% endif %}
+    </div>
+
+    <div class="faq-left">
+      <div class="faq-inner">
+        <h2 class="main_heading title">
+          {{ section.settings.heading }}
+        </h2>
+        {% for block in section.blocks %}
+          <div class="faq-item {% if forloop.first %}active{% endif %}" {{ block.shopify_attributes }}>
+            
+            <button class="faq-question">
+              <span>{{ block.settings.question }}</span>
+              <span class="faq-icon">
+                {% if forloop.first %}−{% else %}+{% endif %}
+              </span>
+            </button>
+
+            <div class="faq-answer">
+              {{ block.settings.answer }}
+            </div>
+
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const items = document.querySelectorAll(".faq-item");
+  items.forEach(item => {
+    const question = item.querySelector(".faq-question");
+    const answer = item.querySelector(".faq-answer");
+    if (item.classList.contains("active")) {
+      answer.style.height = answer.scrollHeight + "px";
+    }
+    question.addEventListener("click", function () {
+      const isActive = item.classList.contains("active");
+      items.forEach(i => {
+        const ans = i.querySelector(".faq-answer");
+        i.classList.remove("active");
+        i.querySelector(".faq-icon").textContent = "+";
+        ans.style.height = 0;
+      });
+      if (!isActive) {
+        item.classList.add("active");
+        item.querySelector(".faq-icon").textContent = "−";
+        answer.style.height = answer.scrollHeight + "px";
+      }
+    });
+  });
+});
+</script>
+
+<style>
+#shopify-section-{{ section.id }} {
+  padding-top: {{ section.settings.padding_top }}px;
+  padding-bottom: {{ section.settings.padding_bottom }}px;
+}
+.faq-inner {
+  max-width: 84%;
+  width: 100%;
+  margin: auto;
+}
+.faq-right,
+.faq-left {
+  max-width: 50%;
+  width: 100%; 
+}
+.faq-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: {{ section.settings.bg_color }};
+}
+.faq-pro-section .main_heading {
+  text-align: left;
+  max-width: 59%;
+  width: 100%;
+}
+.faq-item {
+  background: #fff;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  overflow: hidden;
+  background: rgba(145, 6, 6, 0.05);
+}
+.faq-question {
+  width: 100%;
+  padding: 20px;
+  background: transparent;
+  border: none;
+  color: #4F2B08;
+  font-weight: 500;
+  text-align: left;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  font-family: Montserrat;
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 150%;
+  letter-spacing: 0%;
+}
+.faq-icon {
+  font-size: 20px;
+  font-weight: 400;
+  color: #000000;
+}
+{% comment %} .faq-answer {
+  padding: 0px 20px 20px 20px;
+  font-size: 16px;
+  color: rgba(30, 30, 30, 0.8);
+  display: none;
+  letter-spacing: normal;
+  p { margin: 0; }
+}
+
+.faq-item.active .faq-answer {
+  display: block;
+} {% endcomment %}
+
+.faq-answer {
+  height: 0;
+  overflow: hidden;
+  padding: 0 20px;
+  font-size: 16px;
+  color: rgba(30, 30, 30, 0.8);
+  letter-spacing: normal;
+  transition: height 0.35s ease;
+}
+.faq-item.active .faq-answer {
+  padding: 0 20px 20px 20px;
+}
+.faq-right img {
+  width: 100%;
+  display: block;
+}
+.faq-wrapper.row-reverse {
+  flex-direction: row-reverse;
+}
+@media(max-width: 1551px) {
+  .faq-pro-section .main_heading {
+    max-width: 100%;
+  }
+  .faq-question {
+    padding: 15px;
+    font-size: 16px;
+  }
+  .faq-item.active .faq-answer {
+    padding: 0 15px 15px 15px;
+  }
+  .faq-inner {
+    max-width: 95%;
+    width: 100%;
+    margin: auto;
+  }
+}
+@media(max-width: 768px) {
+  #shopify-section-{{ section.id }} {
+    padding-top: {{ section.settings.mobile_padding_top }}px;
+    padding-bottom: {{ section.settings.mobile_padding_bottom }}px;
+  } 
+  .faq-wrapper {
+    flex-direction: column;
+    gap: 0px;
+  }
+  .faq-right,
+  .faq-left {
+    max-width: 100%;
+    width: 100%; 
+  }
+  .faq-right {
+    margin-top: 0px;
+  }
+  .faq-question {
+    font-size: 14px;
+    padding: 14px;
+  }
+  .faq-answer {
+    font-size: 13px;
+  }
+  .faq-inner {
+    max-width: 100%;
+    width: 100%;
+    margin: auto;
+    padding: 20px 15px;
+  }
+  .faq-wrapper.row-reverse {
+    flex-direction: column;
+  }
+}
+</style>
+
+
+{% schema %}
+{
+  "name": "FAQ With Image",
+  "settings": [
+    {
+      "type": "select",
+      "id": "faq_style",
+      "label": "FAQ Layout Style",
+      "options": [
+        { "value": "row", "label": "Row" },
+        { "value": "row-reverse", "label": "Row Reverse" }
+      ],
+      "default": "row"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Section Heading",
+      "default": "Answered by Fitness Professionals"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Image"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background color"
+    },
+    {
+        "type": "range",
+        "id": "padding_top",
+        "min": 0,
+        "max": 120,
+        "step": 2,
+        "unit": "px",
+        "label": "Desktop Padding Top",
+        "default": 36
+    },
+    {
+        "type": "range",
+        "id": "padding_bottom",
+        "min": 0,
+        "max": 120,
+        "step": 2,
+        "unit": "px",
+        "label": "Desktop Padding Bottom",
+        "default": 36
+    },
+    {
+        "type": "range",
+        "id": "mobile_padding_top",
+        "min": 0,
+        "max": 100,
+        "step": 2,
+        "unit": "px",
+        "label": "Mobile Padding Top",
+        "default": 20
+    },
+    {
+        "type": "range",
+        "id": "mobile_padding_bottom",
+        "min": 0,
+        "max": 100,
+        "step": 2,
+        "unit": "px",
+        "label": "Mobile Padding Bottom",
+        "default": 20
+    }
+  ],
+  "blocks": [
+    {
+      "type": "faq",
+      "name": "FAQ Item",
+      "settings": [
+        {
+          "type": "text",
+          "id": "question",
+          "label": "Question"
+        },
+        {
+          "type": "text",
+          "id": "answer",
+          "label": "Answer"
+        }
+      ]
+    }
+  ],
+  "max_blocks": 10,
+  "presets": [
+    {
+      "name": "FAQ With Image",
+      "blocks": [
+        { "type": "faq" },
+        { "type": "faq" },
+        { "type": "faq" }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,198 @@
+<section class="slider-slider-section slider-{{ section.id }}">
+    <div class="swiper_button">
+        <div class="swiper slider-swiper">
+            <div class="swiper-wrapper">
+            {% for block in section.blocks %}
+                <div class="swiper-slide">
+                    <a href="{{ block.settings.slide_link }}">
+                    <img
+                        src="{{ block.settings.slide_image | image_url }}"
+                        alt=""
+                        loading="lazy"
+                        width=""
+                        height=""
+                        class="desktop_image"
+                    >
+                    <img
+                        src="{{ block.settings.slide_image2 | image_url }}"
+                        alt=""
+                        loading="lazy"
+                        width=""
+                        height=""
+                        class="mobile_image"
+                    >
+                    </a>
+                </div>
+            {% endfor %}
+            </div>
+        </div>
+        <div class="swiper-pagination slider-pagination"></div>
+        {% comment %} <div class="slider-nav">
+            <div class="swiper-button-prev slider-prev">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M15.832 10H4.16536" stroke="#4F2B08" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+                  <path d="M7.5 13.3333L4.16667 10" stroke="#4F2B08" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+                  <path d="M7.5 6.66406L4.16667 9.9974" stroke="#4F2B08" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+            </div>
+            <div class="swiper-button-next slider-next">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M4.16406 10H15.8307" stroke="#4F2B08" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+                  <path d="M12.5 13.3333L15.8333 10" stroke="#4F2B08" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+                  <path d="M12.5 6.66406L15.8333 9.9974" stroke="#4F2B08" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+            </div>
+        </div> {% endcomment %}
+    </div>     
+</section>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  new Swiper(".slider-{{ section.id }} .slider-swiper", {
+    slidesPerView: 1,
+    spaceBetween: 6,
+    loop: true,
+    speed: 1200,
+    pagination: {
+      el: ".slider-{{ section.id }} .slider-pagination",
+      clickable: true
+    },
+    autoplay: {
+      delay: 2500,
+      disableOnInteraction: false
+    },
+    breakpoints: {
+      0: {
+        slidesPerView: 1,
+        spaceBetween: 6,
+       },
+      1024: { slidesPerView: 1 }
+    }
+  });
+});
+</script>
+
+<style>
+.slider-{{ section.id }} .swiper-pagination {
+  bottom: 5px;
+}
+
+.slider-{{ section.id }} .swiper-pagination-bullet {
+  opacity: 0.5;
+  background: #910606;
+  border-radius: 10px;
+}
+
+.slider-{{ section.id }} .swiper-pagination-bullet-active {
+  opacity: 1;
+  width: 20px;
+}
+.slider-nav .swiper-button-prev {
+  left: 10px;
+}
+.slider-nav .swiper-button-next {
+  right: 10px;
+}
+.slider-slider-section img {
+  width: 100%;
+}
+.slider-slider-section .swiper_button {
+  position: relative;
+}
+.slider-{{ section.id }}.slider-slider-section {
+  padding-top: {{ section.settings.padding_top }}px;
+  padding-bottom: {{ section.settings.padding_bottom }}px;
+}
+.mobile_image {
+  display: none;
+}
+@media screen and (max-width: 768px) {
+  .slider-{{ section.id }}.slider-slider-section {
+    padding-top: {{ section.settings.padding_top_mobile }}px;
+    padding-bottom: {{ section.settings.padding_bottom_mobile }}px;
+  }
+  .mobile_image {
+    display: block;
+  }
+  .desktop_image {
+    display: none;
+  }
+}
+
+</style>
+
+{% schema %}
+{
+  "name": "Slider section",
+  "settings": [
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Padding Top (Desktop)",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Padding Bottom (Desktop)",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "default": 30
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "label": "Padding Top (Mobile)",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "label": "Padding Bottom (Mobile)",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "default": 20
+    }
+  ],
+
+  "blocks": [
+    {
+      "type": "slider_image",
+      "name": "Slider Image",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "slide_image",
+          "label": "Slide Image Desktop"
+        },
+        {
+          "type": "image_picker",
+          "id": "slide_image2",
+          "label": "Slide Image Mobile"
+        },
+        {
+          "type": "url",
+          "id": "slide_link",
+          "label": "Slide Link"
+        }
+      ]
+    }
+  ],
+
+  "presets": [
+    {
+      "name": "Slider section",
+      "category": "Custom"
+    }
+  ]
+}
+{% endschema %}

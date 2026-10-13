@@ -1,0 +1,355 @@
+{% liquid
+  assign product_resource = closest.product
+
+  if request.visual_preview_mode and product_resource == blank
+    assign product_resource = collections.all.products.first
+  endif
+%}
+
+{% if product_resource.metafields.custom.sibling_products != blank %}
+
+  {% assign is_assorted = false %}
+
+  {% if product_resource.tags contains 'assorted-pack' %}
+    {% assign is_assorted = true %}
+  {% endif %}
+
+  <div class="variant-pick">
+
+    {% if is_assorted %}
+      <h4 class="pdp-sidebar-title">SIZE</h4>
+    {% else %}
+      <h4 class="pdp-sidebar-title">CHOOSE FLAVOUR</h4>
+    {% endif %}
+
+    <div class="relatedvarain-wrap">
+      <div class="relatedvaraint">
+
+        {% if is_assorted %}
+
+          {% comment %}
+            ASSORTED PACK SIZE SELECTOR
+
+            12g Protein Bar = 40 GM
+            20g Protein Bar = 60 GM
+          {% endcomment %}
+
+          {% assign size_list = '40,60' | split: ',' %}
+
+          {% for size in size_list %}
+
+            {% assign match_url = '' %}
+            {% assign is_selected = false %}
+
+            {% comment %}
+              Check current product
+            {% endcomment %}
+
+            {% assign current_title = product_resource.title | downcase | remove: ' ' %}
+
+            {% if size == '60' and current_title contains '20gprotein' %}
+
+              {% assign match_url = product_resource.url %}
+              {% assign is_selected = true %}
+
+            {% elsif size == '40' and current_title contains '12gprotein' %}
+
+              {% assign match_url = product_resource.url %}
+              {% assign is_selected = true %}
+
+            {% endif %}
+
+
+            {% comment %}
+              If current product is not this size,
+              find the correct sibling product.
+            {% endcomment %}
+
+            {% if match_url == '' %}
+
+              {% for related_product in product_resource.metafields.custom.sibling_products.value %}
+
+                {% assign related_title = related_product.title | downcase | remove: ' ' %}
+
+                {% if size == '60' and related_title contains '20gprotein' %}
+
+                  {% assign match_url = related_product.url %}
+                  {% break %}
+
+                {% elsif size == '40' and related_title contains '12gprotein' %}
+
+                  {% assign match_url = related_product.url %}
+                  {% break %}
+
+                {% endif %}
+
+              {% endfor %}
+
+            {% endif %}
+
+
+            {% if match_url != '' %}
+
+              <a
+                href="{{ match_url }}"
+                class="variant-blk assorted-size-option{% if is_selected %} selected{% endif %}"
+                {% if is_selected %}aria-current="page"{% endif %}
+              >
+                <span>{{ size }} GM</span>
+              </a>
+
+            {% endif %}
+
+          {% endfor %}
+
+
+        {% else %}
+
+          {% comment %}
+            NORMAL PRODUCTS
+            Existing flavour image behaviour.
+          {% endcomment %}
+
+          <div class="variant-blk active">
+
+            {% if product_resource.metafields.custom.variant_image != blank %}
+
+              <div class="variant-img active">
+
+                <img
+                  src="{{ product_resource.metafields.custom.variant_image | image_url }}"
+                  alt="Variant Image"
+                >
+
+              </div>
+
+            {% endif %}
+
+          </div>
+
+
+          {% for related_product in product_resource.metafields.custom.sibling_products.value %}
+
+            <a
+              href="{{ related_product.url }}"
+              class="variant-blk"
+            >
+
+              <div class="variant-img">
+
+                <img
+                  src="{{ related_product.metafields.custom.variant_image | image_url }}"
+                  alt="Variant Image"
+                >
+
+              </div>
+
+            </a>
+
+          {% endfor %}
+
+        {% endif %}
+
+      </div>
+    </div>
+
+  </div>
+
+{% endif %}
+
+
+{% render 'variant-main-picker', product_resource: product_resource %}
+
+
+<script>
+(function () {
+  let buyTwoSelected = false;
+  let observer;
+
+  function selectBuyTwo() {
+    if (buyTwoSelected) return true;
+
+    const inputs = document.querySelectorAll(
+      'input[type="radio"], input[type="checkbox"]'
+    );
+
+    for (const input of inputs) {
+      const value = (input.value || '').trim().toUpperCase();
+
+      if (value === 'BUY 2 GET 10% OFF') {
+
+        if (!input.checked) {
+          input.click();
+        }
+
+        buyTwoSelected = true;
+
+        if (observer) {
+          observer.disconnect();
+        }
+
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  /*
+    Buy 2 default selection is currently disabled.
+  */
+
+})();
+</script>
+
+
+{% schema %}
+{
+  "name": "t:names.product_variant_picker",
+  "tag": null,
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "t:content.resource_reference_product_variant_picker"
+    },
+    {
+      "type": "paragraph",
+      "content": "t:content.edit_variants_in_theme_settings"
+    },
+    {
+      "type": "select",
+      "id": "variant_style",
+      "label": "t:settings.style",
+      "options": [
+        {
+          "value": "dropdowns",
+          "label": "t:options.dropdowns"
+        },
+        {
+          "value": "buttons",
+          "label": "t:options.buttons"
+        }
+      ],
+      "default": "buttons"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_swatches",
+      "label": "t:settings.swatches",
+      "default": true
+    },
+    {
+      "type": "text_alignment",
+      "id": "alignment",
+      "label": "t:settings.alignment",
+      "default": "left"
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "padding-inline-start",
+      "label": "t:settings.left",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding-inline-end",
+      "label": "t:settings.right",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:names.product_variant_picker",
+      "category": "t:categories.product"
+    }
+  ]
+}
+{% endschema %}
+
+
+<style>
+
+.assorted-size-option {
+  width: 140px;
+  height: 56px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  box-sizing: border-box;
+
+  border: 2px solid transparent;
+  border-radius: 9px;
+
+  background: #f5f3f1;
+
+  color: #9E1717;
+  text-decoration: none;
+
+  font-size: 16px;
+  font-weight: 400;
+
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+
+.assorted-size-option.selected {
+  border-color: #5a300b;
+}
+
+
+.assorted-size-option:hover {
+  background: #ffffff;
+}
+
+
+.assorted-size-option span {
+  display: block;
+  color: #9E1717;
+  font-size: 16px;
+  font-weight: 400;
+}
+
+
+.relatedvaraint:has(.assorted-size-option) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+</style>

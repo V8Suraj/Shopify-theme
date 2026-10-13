@@ -1,0 +1,344 @@
+<section class="our-story-section" >
+
+  <div class="our-story-container">
+
+    <!-- LEFT CONTENT -->
+    <div class="story-left">
+
+      {% if section.settings.heading %}
+        <h2 class="story-heading">{{ section.settings.heading }}</h2>
+      {% endif %}
+
+      {% if section.settings.subheading %}
+        <p class="story-sub">{{ section.settings.subheading }}</p>
+      {% endif %}
+
+      {% if section.settings.content %}
+        <div class="story-content">{{ section.settings.content }}</div>
+      {% endif %}
+
+      <!-- BLOCK LOOP -->
+      <div class="story-blocks">
+        {% for block in section.blocks %}
+          <div class="story-block">
+            {% if block.settings.icon %}
+              <img src="{{ block.settings.icon | image_url: width: 60 }}" class="block-icon">
+            {% endif %}
+            <div>
+              <h4 class="block-title">{{ block.settings.title }}</h4>
+              <p class="block-text">{{ block.settings.text }}</p>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+
+      <!-- BUTTON -->
+      {% if section.settings.btn_text %}
+        <a href="{{ section.settings.btn_link }}" class="story-btn">
+          {{ section.settings.btn_text }}
+        </a>
+      {% endif %}
+
+    </div>
+
+  </div>
+
+</section>
+
+<style>
+
+.our-story-section {
+  background-size: cover;
+  background-position: center;
+  padding-left: 140px;
+  padding-top: {{ section.settings.padding_top }}px;
+  padding-bottom: {{ section.settings.padding_bottom }}px;
+  background-image: url({{ section.settings.bg_desktop | image_url }});
+}
+
+.story-left {
+    width: 100%;
+    max-width: 37%;
+}
+
+.story-heading {
+    font-family: "Rubik", sans-serif;
+    font-weight: 700;
+    font-size: 48px;
+    line-height: 100%;
+    letter-spacing: 0;
+    text-transform: uppercase;
+    color: #1E1E1E;
+    margin: 0px;
+}
+
+.story-sub {
+    font-weight: 500;
+    font-style: Italic;
+    font-size: 18px;
+    line-height: 150%;
+    letter-spacing: 0;
+    color: rgba(30, 30, 30, 0.8);
+    margin: 8px 0px 24px;
+}
+
+.story-content {
+    font-weight: 500;
+    font-size: 18px;
+    line-height: 150%;
+    letter-spacing: 0;
+    color: #1E1E1E;
+}
+
+/* Blocks */
+.story-blocks {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 110px;
+  margin-top: 40px;
+  max-width: 70%;
+}
+
+.story-block {
+  display: flex;
+  gap: 12px;
+  background: rgba(145, 6, 6, 0.05);
+  padding: 16px;
+  border-radius: 12px;
+}
+
+.block-icon {
+  width: 32px;
+  height: 32px;
+}
+
+.block-title {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: #1E1E1E;
+}
+
+.block-text {
+  font-weight: 500;
+  font-size: 18px;
+  color: #1E1E1E;
+  margin: 0px;
+}
+
+.story-btn {
+  background: #4F2B08;
+  padding: 10px 82px;
+  display: inline-block;
+  color: #fff;
+  border-radius: 12px;
+  font-size: 18px;
+  text-decoration: none;
+  font-weight: 500;
+  font-family: "Rubik", sans-serif;
+  transition: all 0.3s ease-in-out;
+}
+.story-btn:hover {
+    background: #960303;
+}
+@media(max-width: 1551px) {
+    .our-story-section {
+        padding-left: 60px;
+    }
+    .story-left {
+        width: 100%;
+        max-width: 40%;
+    }
+    .story-blocks {
+        margin-bottom: 40px;
+        margin-top: 30px;
+        max-width: 80%;
+    }
+}
+
+@media(max-width: 1024px) {
+    .story-heading {
+        font-size: 32px;
+    }
+    .story-sub {
+        font-size: 16px;
+        margin: 8px 0px 16px;
+    }
+    .block-title {
+        font-size: 18px;
+        margin-bottom: 4px;
+        color: #1E1E1E;
+    }
+    .story-block {
+        gap: 8px;
+        padding: 12px;
+    }
+    .story-btn {
+        padding: 10px 60px;
+        font-size: 16px;
+    }
+    .story-blocks {
+        margin-bottom: 30px;
+        margin-top: 15px;
+        max-width: 80%;
+    }
+    .block-icon {
+        width: 24px;
+        height: 24px;
+    }
+}
+
+@media(max-width: 768px) {
+    .our-story-section {
+        padding-top: {{ section.settings.padding_top_mobile }}px;
+        padding-bottom: {{ section.settings.padding_bottom_mobile }}px;
+        background-image: url({{ section.settings.bg_mobile | image_url }});
+    }
+    .our-story-section {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+    .story-left {
+        max-width: 100%;
+        text-align: center;
+    }
+    .story-sub {
+        font-size: 14px;
+        margin: 4px 0px 16px;
+    }
+    .story-content {
+        font-size: 16px;
+    }
+    .story-block {
+        gap: 8px;
+        padding: 10px;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+    .block-text {
+        font-size: 14px;
+    }
+    .story-blocks {
+        margin-bottom: 15px;
+        margin-top: 10px;
+        max-width: 100%;
+        flex-direction: row;
+        justify-content: space-between;
+        width: 100%;
+    }
+}
+</style>
+
+{% schema %}
+{
+  "name": "Our Story Section",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "bg_desktop",
+      "label": "Background Image (Desktop)"
+    },
+    {
+      "type": "image_picker",
+      "id": "bg_mobile",
+      "label": "Background Image (Mobile)"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "OUR STORY"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "Sub-Heading",
+      "default": "India Snacks Different Now."
+    },
+    {
+      "type": "richtext",
+      "id": "content",
+      "label": "Main Content",
+      "default": "<p>Write story content here...</p>"
+    },
+    {
+      "type": "text",
+      "id": "btn_text",
+      "label": "Button Text",
+      "default": "About Us"
+    },
+    {
+      "type": "url",
+      "id": "btn_link",
+      "label": "Button Link"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Padding Top (Desktop)",
+      "min": 0,
+      "max": 160,
+      "step": 2,
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Padding Bottom (Desktop)",
+      "min": 0,
+      "max": 160,
+      "step": 2,
+      "default": 30
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "label": "Padding Top (Mobile)",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "label": "Padding Bottom (Mobile)",
+      "min": 100,
+      "max": 400,
+      "step": 5,
+      "default": 385
+    }
+  ],
+  "blocks": [
+    {
+      "type": "icon_block",
+      "name": "Vision/Mission Block",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "icon",
+          "label": "Small Icon"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Heading"
+        },
+        {
+          "type": "textarea",
+          "id": "text",
+          "label": "Description"
+        }
+      ]
+    }
+  ],
+  "max_blocks": 10,
+  "presets": [
+    {
+      "name": "Our Story"
+    }
+  ]
+}
+{% endschema %}

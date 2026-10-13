@@ -1,0 +1,350 @@
+{%- doc -%}
+  This snippet is used to render a product card.
+  It is used in the product block, featured product block, and the product card block.
+  The product object is null or when placeholders are rendered.
+
+  @param {object} product - The product object
+  @param {object} children - The children of the product card
+  @param {object} [block] - The block object
+  @param {number} [product_card_gap] - The gap between the product card children (overrides block settings)
+{%- enddoc -%}
+
+{% assign block_settings = block.settings %}
+
+{% style %}
+  {% if request.visual_preview_mode %}
+    product-card-link {
+      width: 100%;
+      min-width: 250px;
+    }
+  {% endif %}
+{% endstyle %}
+
+{% liquid
+  assign has_quick_add = false
+  if settings.quick_add and product.available
+    assign has_quick_add = true
+  endif
+
+  assign has_mobile_quick_add = false
+  if has_quick_add and settings.mobile_quick_add
+    assign has_mobile_quick_add = true
+  endif
+
+  assign product_card_id = 'product-card-link-' | append: block.id | append: '-' | append: product.id
+  assign product_card_gap_value = product_card_gap | default: block_settings.product_card_gap
+
+  # Logic to determine which variant URL to use (matching swatch selection logic)
+  assign variant_to_link = product.selected_or_first_available_variant
+  assign combined_listing_count = product.options_with_values | map: 'values' | map: 'product_url' | compact | size
+  assign no_swatch_selected = null
+
+  unless combined_listing_count > 0
+    # Simple direct check: which variant owns the featured image?
+    if product.featured_media
+      assign found_variant = false
+
+      for variant in product.variants
+        if variant.featured_media.id == product.featured_media.id
+          assign variant_to_link = variant
+          assign found_variant = true
+          break
+        endif
+      endfor
+
+      # Check if we need to set no_swatch_selected
+      unless found_variant
+        # Featured image is not a variant image
+        # Check if product has swatches
+        for option in product.options_with_values
+          assign swatch_count = option.values | map: 'swatch' | compact | size
+          if swatch_count > 1
+            # Multiple swatches exist but featured image doesn't match any
+            assign no_swatch_selected = true
+            break
+          endif
+        endfor
+      endunless
+    endif
+  endunless
+
+  if settings.transition_to_main_product
+    assign featured_image = variant_to_link.featured_image
+    if featured_image == blank
+      assign featured_image = product.featured_media.preview_image
+    endif
+
+    if featured_image != blank
+      assign featured_media_url = featured_image | image_url: width: 500
+    endif
+  endif
+
+  assign onboarding = false
+  if product.id == empty or product == blank
+    assign onboarding = true
+  endif
+%}
+
+{%- if settings.transition_to_main_product -%}
+  <product-card-link
+    data-product-id="{{ product.id }}"
+    data-featured-media-url="{{ featured_media_url }}"
+    data-product-transition="{{ settings.transition_to_main_product }}"
+    {% if onboarding %}
+      data-placeholder="true"
+    {% endif %}
+  >
+{%- endif -%}
+<product-card
+  class="product-card"
+  data-product-id="{{ product.id }}"
+  data-product-variants-size="{{ product.variants.size }}"
+  id="product-card-{{ block.id }}"
+  data-product-transition="{{ settings.transition_to_main_product }}"
+  {{ block.shopify_attributes }}
+  {% if no_swatch_selected %}
+    data-no-swatch-selected="true"
+  {% endif %}
+  {% if onboarding %}
+    data-placeholder="true"
+  {% endif %}
+>
+  <a
+    id="{{ product_card_id | md5 }}"
+    {% unless onboarding %}
+      href="{{ variant_to_link.url }}"
+    {% endunless %}
+    class="product-card__link"
+    ref="productCardLink"
+  >
+    <span class="visually-hidden">
+      {{ product.title }}
+    </span>
+  </a>
+  <div
+    class="
+      product-card__content
+      layout-panel-flex
+      layout-panel-flex--column
+      product-grid__card
+      spacing-style
+      border-style
+      gap-style
+      {% if block_settings.inherit_color_scheme == false %} color-{{ block_settings.color_scheme }}{% endif %}
+    "
+    style="
+      {% render 'border-override', settings: block_settings %}
+      {% render 'layout-panel-style', settings: block_settings %}
+      {% render 'spacing-style', settings: block_settings %}
+      {% render 'gap-style', value: product_card_gap_value, name: 'product-card-gap' %}
+      --quick-add-display: {% if has_quick_add %}flex{% else %}none{% endif %};
+      --quick-add-mobile-display: {% if has_mobile_quick_add %}flex{% else %}none{% endif %};
+      {% if block_settings.padding-inline-start > 0 %}--zoom-out-padding-inline-start: min(var(--padding-xs), {{ block_settings.padding-inline-start | times: 0.7}}px);{% endif %}
+      {% if block_settings.padding-inline-end > 0 %}--zoom-out-padding-inline-end: min(var(--padding-xs), {{ block_settings.padding-inline-end | times: 0.7}}px);{% endif %}
+      {% if block_settings.padding-block-start > 0 %}--zoom-out-padding-block-start: min(var(--padding-xs), {{ block_settings.padding-block-start | times: 0.7}}px);{% endif %}
+      {% if block_settings.padding-block-end > 0 %}--zoom-out-padding-block-end: min(var(--padding-xs), {{ block_settings.padding-block-end | times: 0.7}}px);{% endif %}
+    "
+  >
+    {{ children }}
+  </div>
+</product-card>
+{%- if settings.transition_to_main_product -%}
+  </product-card-link>
+{%- endif -%}
+
+{% stylesheet %}
+  .ui-test-product-list .product-card {
+    padding: 14px;
+    border-radius: 12px;
+    border: 2px solid #4E2D12;
+  }
+  .ui-test-product-list .product-grid__card.product-grid__card {
+    justify-content: space-between;
+  }
+  .ui-test-product-list .product-media-container.media-fit img {
+    border-radius: 8px;
+  }
+  .ui-test-product-list .product_title p {
+    font-weight: 500;
+    font-size: 28px;
+    line-height: 120%;
+    letter-spacing: 0;
+    color: #4E2D12;
+    text-align: center;
+  }
+  .ui-test-product-list .price {
+    font-weight: 500;
+    font-size: 24px;
+    line-height: 120% !important;
+    letter-spacing: 0;
+    text-align: center;
+    color: #4e2d12;
+    display: inline-block;
+    margin-top: 5px;
+  }
+  .ui-test-product-list .compare-at-price {
+    font-weight: 500;
+    font-size: 20px;
+    line-height: 100%;
+    letter-spacing: 0;
+    text-decoration: line-through;
+    color: #000000;
+    opacity: 1;
+  }
+  .ui-test-product-list .discount-badge {
+    display: none;
+  }
+  .ui-test-product-list .add-to-cart-button {
+    background: #4E2D12;
+    color: #ffffff;
+    font-family: "Rubik", sans-serif;
+    font-weight: 500;
+    font-size: 24px;
+    border: none;
+    box-shadow: none;
+    transition: all 0.3s ease-in-out;
+    margin-top: 7px;
+  }
+  .ui-test-product-list .add-to-cart-button:hover {
+    background: #960303;
+    color: #ffffff;
+    transform: translateY(-3px);
+  }
+  .ui-test-product-list .section-resource-list__header p {
+    font-family: "Rubik", sans-serif;
+    font-weight: 700;
+    font-size: 48px;
+    line-height: 100%;
+    letter-spacing: 0;
+    text-transform: uppercase;
+    color: #1E1E1E;
+    margin-bottom: 40px;
+  }
+  .ui-test-product-list .product-badges__badge {
+    display: none;
+  }
+  .custom-badge {
+    display: none;
+  }
+  .resource-list__carousel .custom-badge {
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 100%;
+    letter-spacing: 0;
+    text-align: center;
+    text-transform: uppercase;
+    padding: 15px 12px;
+    background-color: #960303;
+    color: #ffffff;
+    display: block;
+    border-radius: 4px;
+  }
+  .ui-test-product-list .product-badges {
+    top: 0;
+    left: auto;
+    right: 0;
+  }
+  .ui-test-product-list .slideshow-control {
+    background-color: #ffeed7 !important;
+    color: #4f2b08 !important;
+    border: 1px solid #4F2B08;
+    border-radius: 6px !important;
+  }
+
+  product-card-link,
+  :not(product-card-link) product-card {
+    width: 100%;
+  }
+
+  .product-card__placeholder-image svg {
+    height: 100%;
+  }
+  @media screen and (max-width: 768px) {
+    .ui-test-product-list .section-resource-list__header p {
+      font-size: 32px;
+      margin-bottom: 24px;
+    }
+    .resource-list__carousel .custom-badge {
+      font-size: 12px;
+      padding: 8px 5px;
+    }
+    .ui-test-product-list .product-card {
+      padding: 8px;
+    }
+    .ui-test-product-list .product_title p {
+      font-size: 16px;
+    }
+    .ui-test-product-list .price {
+      font-size: 16px;
+    }
+    .ui-test-product-list .compare-at-price {
+      font-size: 14px;
+    }
+    .ui-test-product-list .add-to-cart-button {
+      font-size: 16px;
+    }
+  }
+  @media screen and (max-width: 749px) {
+    .product-card slideshow-arrows .slideshow-control {
+      display: none;
+    }
+  }
+
+  /* Hide the variant swatches for product cards that show a swatches variant picker */
+  :is(.product-card):has(swatches-variant-picker-component) .quick-add .variant-option--swatches {
+    display: none;
+  }
+
+  /* Hide "Add" button for single option product cards that show a swatches variant picker */
+  :is(.product-card:not([data-no-swatch-selected])):has(.quick-add__product-form-component--single-option):has(
+      swatches-variant-picker-component
+    )
+    .quick-add__button--choose {
+    display: none;
+  }
+
+  /* Hide "Add" button for single option product cards that show a swatches variant picker */
+  :is(.product-card[data-no-swatch-selected]):has(.quick-add__product-form-component--single-option):has(
+      swatches-variant-picker-component
+    )
+    add-to-cart-component {
+    display: none;
+  }
+
+  /* Hide "add" button for multi-variant product cards that don't show a swatches variant picker */
+  :is(.product-card):has(.quick-add__product-form-component--multi-variant):not(:has(swatches-variant-picker-component))
+    .quick-add__button--add {
+    display: none;
+  }
+
+  /* Hover effect for single variant product cards and product blocks */
+
+  /* stylelint-disable selector-max-specificity */
+  :is(.product-card):has(.quick-add__product-form-component--single-variant) .card-gallery:hover {
+    & .quick-add__button--choose {
+      display: none;
+    }
+
+    & .quick-add__button--add {
+      display: grid;
+    }
+  }
+
+  .product-card[data-no-swatch-selected] slideshow-component[data-generic-media-size='1'] slideshow-arrows {
+    display: none;
+  }
+
+  .product-card[data-no-swatch-selected]
+    slideshow-component[data-generic-media-size='1']
+    slideshow-arrows:has(+ slideshow-slides slideshow-slide[variant-image]:not([hidden])) {
+    display: flex;
+  }
+
+  .product-card .variant-option__swatch svg {
+    display: none;
+  }
+
+  .product-card [data-available-count='0'] ~ svg {
+    display: block;
+  }
+{% endstylesheet %}

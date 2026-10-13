@@ -1,0 +1,1300 @@
+{% liquid
+  assign popup_id = 'FlashSale-' | append: section.id
+%}
+
+<div
+  id="{{ popup_id }}"
+  class="flash-sale-popup-wrapper"
+  data-enabled="{{ section.settings.enabled }}"
+  data-delay="{{ section.settings.delay }}"
+  data-trigger="{{ section.settings.trigger }}"
+  data-show-once="{{ section.settings.show_once }}"
+  data-countdown="{{ section.settings.countdown }}"
+  data-end-date="{{ section.settings.end_date }}"
+>
+  <div class="flash-sale-overlay"></div>
+
+  <div
+    class="flash-sale-popup"
+    role="dialog"
+    aria-modal="true"
+    aria-label="{{ section.settings.title | escape }}"
+  >
+
+    <!-- Close Button -->
+    <button
+      type="button"
+      class="flash-sale-close"
+      aria-label="Close popup"
+    >
+      &times;
+    </button>
+
+    <div class="flash-sale-content">
+
+      <!-- Left / Main Content -->
+      <div class="flash-sale-main">
+
+        {% if section.settings.top_text != blank %}
+          <div class="flash-sale-top-text">
+            {{ section.settings.top_text }}
+          </div>
+        {% endif %}
+
+        {% if section.settings.title != blank %}
+          <h2 class="flash-sale-title">
+            {{ section.settings.title }}
+          </h2>
+        {% endif %}
+
+        {% if section.settings.subtitle != blank %}
+          <p class="flash-sale-subtitle">
+            {{ section.settings.subtitle }}
+          </p>
+        {% endif %}
+
+        <!-- Countdown -->
+        {% if section.settings.show_countdown %}
+          <div class="flash-sale-countdown">
+
+            <div class="countdown-box">
+              <span class="countdown-number" data-hours>00</span>
+              <span class="countdown-label">HOURS</span>
+            </div>
+
+            <span class="countdown-separator">:</span>
+
+            <div class="countdown-box">
+              <span class="countdown-number" data-minutes>00</span>
+              <span class="countdown-label">MINUTES</span>
+            </div>
+
+            <span class="countdown-separator">:</span>
+
+            <div class="countdown-box">
+              <span class="countdown-number" data-seconds>00</span>
+              <span class="countdown-label">SECONDS</span>
+            </div>
+
+          </div>
+        {% endif %}
+
+        {% if section.settings.button_text != blank %}
+          <a
+            href="{{ section.settings.button_link }}"
+            class="flash-sale-button"
+          >
+            {{ section.settings.button_text }}
+          </a>
+        {% endif %}
+
+        {% if section.settings.bottom_text != blank %}
+          <div class="flash-sale-bottom-text">
+            {{ section.settings.bottom_text }}
+          </div>
+        {% endif %}
+
+      </div>
+
+      <!-- Background Decoration -->
+      <div class="flash-sale-decoration flash-sale-decoration-one"></div>
+      <div class="flash-sale-decoration flash-sale-decoration-two"></div>
+
+    </div>
+
+  </div>
+</div>
+
+
+<style>
+
+  /* =========================
+     WRAPPER
+  ========================= */
+
+  #{{ popup_id }} {
+    --popup-width: {{ section.settings.desktop_width }}px;
+    --popup-height: {{ section.settings.desktop_height }}px;
+
+    --popup-bg: {{ section.settings.background_color }};
+    --overlay-color: {{ section.settings.overlay_color }};
+
+    --title-color: {{ section.settings.title_color }};
+    --text-color: {{ section.settings.text_color }};
+
+    --button-bg: {{ section.settings.button_color }};
+    --button-text: {{ section.settings.button_text_color }};
+
+    --radius: {{ section.settings.border_radius }}px;
+
+    position: fixed;
+    inset: 0;
+    z-index: 999999;
+
+    display: none;
+    align-items: center;
+    justify-content: center;
+
+    font-family: inherit;
+  }
+
+  #{{ popup_id }}.is-visible {
+    display: flex;
+  }
+
+
+  /* =========================
+     OVERLAY
+  ========================= */
+
+  #{{ popup_id }} .flash-sale-overlay {
+    position: absolute;
+    inset: 0;
+
+    background: var(--overlay-color);
+
+    {% if section.settings.blur_background %}
+      backdrop-filter: blur({{ section.settings.blur_amount }}px);
+      -webkit-backdrop-filter: blur({{ section.settings.blur_amount }}px);
+    {% endif %}
+  }
+
+
+  /* =========================
+     POPUP
+  ========================= */
+
+  #{{ popup_id }} .flash-sale-popup {
+
+    position: relative;
+
+    width: var(--popup-width);
+    min-height: var(--popup-height);
+
+    max-width: calc(100vw - 40px);
+    max-height: calc(100vh - 40px);
+
+    overflow: hidden;
+
+    border-radius: var(--radius);
+
+    background-color: var(--popup-bg);
+
+    {% if section.settings.background_image != blank %}
+      background-image:
+        linear-gradient(
+          {{ section.settings.image_overlay_color | color_modify: 'alpha', section.settings.image_overlay_opacity | divided_by: 100.0 }},
+          {{ section.settings.image_overlay_color | color_modify: 'alpha', section.settings.image_overlay_opacity | divided_by: 100.0 }}
+        ),
+        url('{{ section.settings.background_image | image_url: width: 1800 }}');
+
+      background-size: cover;
+      background-position: center;
+    {% endif %}
+
+    box-shadow:
+      0 30px 80px rgba(0,0,0,.35);
+
+    transform: scale(.92);
+    opacity: 0;
+
+    transition:
+      transform .35s ease,
+      opacity .35s ease;
+  }
+
+  #{{ popup_id }}.is-visible .flash-sale-popup {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+
+  /* =========================
+     CONTENT
+  ========================= */
+
+  #{{ popup_id }} .flash-sale-content {
+
+    position: relative;
+
+    width: 100%;
+    min-height: var(--popup-height);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 45px;
+
+    box-sizing: border-box;
+
+    overflow: hidden;
+  }
+
+
+  #{{ popup_id }} .flash-sale-main {
+
+    position: relative;
+    z-index: 3;
+
+    width: 100%;
+    max-width: 600px;
+
+    text-align: center;
+  }
+
+
+  /* =========================
+     TOP TEXT
+  ========================= */
+
+  #{{ popup_id }} .flash-sale-top-text {
+
+    margin-bottom: 8px;
+
+    font-size: {{ section.settings.top_text_size }}px;
+
+    font-weight: 600;
+
+    letter-spacing: 2px;
+
+    color: var(--text-color);
+
+    text-transform: uppercase;
+  }
+
+
+  /* =========================
+     TITLE
+  ========================= */
+
+  #{{ popup_id }} .flash-sale-title {
+
+    margin: 0 0 12px;
+
+    font-size: {{ section.settings.title_size }}px;
+
+    line-height: 1;
+
+    font-weight: 800;
+
+    letter-spacing: 2px;
+
+    color: var(--title-color);
+
+    text-transform: uppercase;
+  }
+
+
+  /* =========================
+     SUBTITLE
+  ========================= */
+
+  #{{ popup_id }} .flash-sale-subtitle {
+
+    margin: 0 auto 25px;
+
+    max-width: 500px;
+
+    color: var(--text-color);
+
+    font-size: {{ section.settings.subtitle_size }}px;
+
+    line-height: 1.5;
+  }
+
+
+  /* =========================
+     COUNTDOWN
+  ========================= */
+
+  #{{ popup_id }} .flash-sale-countdown {
+
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+
+    gap: 8px;
+
+    margin-bottom: 25px;
+  }
+
+
+  #{{ popup_id }} .countdown-box {
+
+    width: 65px;
+    height: 65px;
+
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: center;
+
+    background: rgba(255,255,255,.92);
+
+    border-radius: 8px;
+
+    box-shadow:
+      0 5px 15px rgba(0,0,0,.12);
+  }
+
+
+  #{{ popup_id }} .countdown-number {
+
+    font-size: 25px;
+
+    line-height: 1;
+
+    font-weight: 800;
+
+    color: #111;
+  }
+
+
+  #{{ popup_id }} .countdown-label {
+
+    margin-top: 5px;
+
+    font-size: 8px;
+
+    letter-spacing: .8px;
+
+    font-weight: 700;
+
+    color: #555;
+  }
+
+
+  #{{ popup_id }} .countdown-separator {
+
+    font-size: 25px;
+
+    font-weight: 800;
+
+    color: var(--title-color);
+  }
+
+
+  /* =========================
+     BUTTON
+  ========================= */
+
+  #{{ popup_id }} .flash-sale-button {
+
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    min-width: 150px;
+
+    padding: 14px 28px;
+
+    border-radius: 6px;
+
+    background: var(--button-bg);
+
+    color: var(--button-text);
+
+    text-decoration: none;
+
+    font-size: 13px;
+
+    font-weight: 800;
+
+    letter-spacing: .5px;
+
+    text-transform: uppercase;
+
+    transition:
+      transform .2s ease,
+      box-shadow .2s ease;
+  }
+
+
+  #{{ popup_id }} .flash-sale-button:hover {
+
+    transform: translateY(-2px);
+
+    box-shadow:
+      0 8px 20px rgba(0,0,0,.2);
+  }
+
+
+  /* =========================
+     BOTTOM TEXT
+  ========================= */
+
+  #{{ popup_id }} .flash-sale-bottom-text {
+
+    margin-top: 15px;
+
+    font-size: 11px;
+
+    color: var(--text-color);
+
+    opacity: .8;
+  }
+
+
+  /* =========================
+     CLOSE BUTTON
+  ========================= */
+
+  #{{ popup_id }} .flash-sale-close {
+
+    position: absolute;
+
+    top: 12px;
+    right: 12px;
+
+    z-index: 20;
+
+    width: 30px;
+    height: 30px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 0;
+
+    border-radius: 50%;
+
+    background: rgba(255,255,255,.9);
+
+    color: #111;
+
+    font-size: 23px;
+
+    line-height: 1;
+
+    cursor: pointer;
+
+    transition: transform .2s ease;
+  }
+
+
+  #{{ popup_id }} .flash-sale-close:hover {
+
+    transform: rotate(90deg);
+  }
+
+
+  /* =========================
+     DECORATIONS
+  ========================= */
+
+  #{{ popup_id }} .flash-sale-decoration {
+
+    position: absolute;
+
+    border-radius: 50%;
+
+    pointer-events: none;
+
+    opacity: .15;
+  }
+
+
+  #{{ popup_id }} .flash-sale-decoration-one {
+
+    width: 250px;
+    height: 250px;
+
+    right: -100px;
+    bottom: -120px;
+
+    border: 40px solid var(--title-color);
+  }
+
+
+  #{{ popup_id }} .flash-sale-decoration-two {
+
+    width: 150px;
+    height: 150px;
+
+    left: -80px;
+    top: -70px;
+
+    border: 25px solid var(--title-color);
+  }
+
+
+  /* =========================
+     MOBILE
+  ========================= */
+
+  @media screen and (max-width: 749px) {
+
+    #{{ popup_id }} {
+
+      --popup-width: {{ section.settings.mobile_width }}%;
+      --popup-height: {{ section.settings.mobile_height }}px;
+    }
+
+
+    #{{ popup_id }} .flash-sale-popup {
+
+      max-width: calc(100vw - 24px);
+      max-height: calc(100vh - 24px);
+
+      {% if section.settings.mobile_background_image != blank %}
+        background-image:
+          linear-gradient(
+            {{ section.settings.image_overlay_color | color_modify: 'alpha', section.settings.image_overlay_opacity | divided_by: 100.0 }},
+            {{ section.settings.image_overlay_color | color_modify: 'alpha', section.settings.image_overlay_opacity | divided_by: 100.0 }}
+          ),
+          url('{{ section.settings.mobile_background_image | image_url: width: 1200 }}');
+      {% endif %}
+    }
+
+
+    #{{ popup_id }} .flash-sale-content {
+
+      min-height: var(--popup-height);
+
+      padding: 35px 20px;
+    }
+
+
+    #{{ popup_id }} .flash-sale-title {
+
+      font-size: {{ section.settings.mobile_title_size }}px;
+    }
+
+
+    #{{ popup_id }} .flash-sale-subtitle {
+
+      font-size: {{ section.settings.mobile_subtitle_size }}px;
+    }
+
+
+    #{{ popup_id }} .countdown-box {
+
+      width: 55px;
+      height: 55px;
+    }
+
+
+    #{{ popup_id }} .countdown-number {
+
+      font-size: 21px;
+    }
+
+
+    #{{ popup_id }} .flash-sale-button {
+
+      width: 100%;
+
+      box-sizing: border-box;
+    }
+
+  }
+
+</style>
+
+
+<script>
+(function () {
+
+  const popup = document.getElementById('{{ popup_id }}');
+
+  if (!popup) return;
+
+
+  /* =========================
+     SETTINGS
+  ========================= */
+
+  const enabled =
+    popup.dataset.enabled === 'true';
+
+  const delay =
+    parseInt(popup.dataset.delay || 3) * 1000;
+
+  const trigger =
+    popup.dataset.trigger;
+
+  const showOnce =
+    popup.dataset.showOnce === 'true';
+
+
+  if (!enabled) return;
+
+
+  /* =========================
+     SESSION CHECK
+  ========================= */
+
+  const storageKey =
+    'flashSaleShown_{{ section.id }}';
+
+
+  if (
+    showOnce &&
+    sessionStorage.getItem(storageKey)
+  ) {
+    return;
+  }
+
+
+  let alreadyShown = false;
+
+
+  /* =========================
+     SHOW POPUP
+  ========================= */
+
+  function showPopup() {
+
+    if (alreadyShown) return;
+
+    alreadyShown = true;
+
+    popup.classList.add('is-visible');
+
+    if (showOnce) {
+      sessionStorage.setItem(
+        storageKey,
+        'true'
+      );
+    }
+
+    startCountdown();
+  }
+
+
+  /* =========================
+     CLOSE POPUP
+  ========================= */
+
+  const closeButton =
+    popup.querySelector('.flash-sale-close');
+
+  closeButton.addEventListener(
+    'click',
+    function () {
+
+      popup.classList.remove(
+        'is-visible'
+      );
+
+    }
+  );
+
+
+  const overlay =
+    popup.querySelector('.flash-sale-overlay');
+
+  overlay.addEventListener(
+    'click',
+    function () {
+
+      popup.classList.remove(
+        'is-visible'
+      );
+
+    }
+  );
+
+
+  /* =========================
+     PAGE LOAD / DELAY
+  ========================= */
+
+  if (
+    trigger === 'delay' ||
+    trigger === 'page_load'
+  ) {
+
+    setTimeout(
+      showPopup,
+      trigger === 'page_load'
+        ? 300
+        : delay
+    );
+
+  }
+
+
+  /* =========================
+     EXIT INTENT
+  ========================= */
+
+if (trigger === 'exit_intent') {
+
+  let exitIntentTriggered = false;
+
+  function detectExitIntent(event) {
+
+    if (exitIntentTriggered) return;
+
+    /*
+      Only trigger when the mouse is
+      leaving toward the top of the browser.
+    */
+
+    if (event.clientY <= 10) {
+
+      exitIntentTriggered = true;
+
+      showPopup();
+
+      document.removeEventListener(
+        'mouseout',
+        detectExitIntent
+      );
+
+    }
+
+  }
+
+  document.addEventListener(
+    'mouseout',
+    detectExitIntent
+  );
+
+}
+
+
+  /* =========================
+     MOUSE MOVEMENT
+  ========================= */
+
+  if (trigger === 'mouse_move') {
+
+    let mouseMoved = false;
+
+    document.addEventListener(
+      'mousemove',
+      function (event) {
+
+        if (mouseMoved) return;
+
+        mouseMoved = true;
+
+        const distance =
+          Math.sqrt(
+            event.clientX ** 2 +
+            event.clientY ** 2
+          );
+
+        if (distance > 300) {
+
+          setTimeout(
+            showPopup,
+            delay
+          );
+
+        }
+
+      }
+    );
+
+  }
+
+
+  /* =========================
+     COUNTDOWN
+  ========================= */
+
+  function startCountdown() {
+
+    const countdown =
+      popup.dataset.countdown;
+
+    let endTime;
+
+
+    /*
+      If custom end date exists,
+      use that.
+    */
+
+    if (popup.dataset.endDate) {
+
+      endTime =
+        new Date(
+          popup.dataset.endDate
+        ).getTime();
+
+    } else {
+
+      /*
+        Otherwise countdown from
+        hours setting.
+      */
+
+      endTime =
+        Date.now() +
+        (
+          parseInt(countdown || 12)
+          * 60
+          * 60
+          * 1000
+        );
+
+    }
+
+
+    const hours =
+      popup.querySelector('[data-hours]');
+
+    const minutes =
+      popup.querySelector('[data-minutes]');
+
+    const seconds =
+      popup.querySelector('[data-seconds]');
+
+
+    function updateTimer() {
+
+      const now =
+        Date.now();
+
+      let difference =
+        endTime - now;
+
+
+      if (difference <= 0) {
+
+        difference = 0;
+
+      }
+
+
+      const totalSeconds =
+        Math.floor(
+          difference / 1000
+        );
+
+
+      const h =
+        Math.floor(
+          totalSeconds / 3600
+        );
+
+      const m =
+        Math.floor(
+          (totalSeconds % 3600) / 60
+        );
+
+      const s =
+        totalSeconds % 60;
+
+
+      if (hours)
+        hours.textContent =
+          String(h).padStart(2, '0');
+
+
+      if (minutes)
+        minutes.textContent =
+          String(m).padStart(2, '0');
+
+
+      if (seconds)
+        seconds.textContent =
+          String(s).padStart(2, '0');
+
+    }
+
+
+    updateTimer();
+
+    setInterval(
+      updateTimer,
+      1000
+    );
+
+  }
+
+
+})();
+</script>
+
+
+{% schema %}
+
+{
+  "name": "Flash Sale Popup",
+
+  "settings": [
+
+    {
+      "type": "header",
+      "content": "Popup Settings"
+    },
+
+    {
+      "type": "checkbox",
+      "id": "enabled",
+      "label": "Enable popup",
+      "default": true
+    },
+
+    {
+      "type": "select",
+      "id": "trigger",
+      "label": "Popup trigger",
+      "options": [
+        {
+          "value": "page_load",
+          "label": "Immediately"
+        },
+        {
+          "value": "delay",
+          "label": "After delay"
+        },
+        {
+          "value": "exit_intent",
+          "label": "Exit intent"
+        },
+        {
+          "value": "mouse_move",
+          "label": "Mouse movement"
+        }
+      ],
+      "default": "delay"
+    },
+
+    {
+      "type": "range",
+      "id": "delay",
+      "label": "Delay",
+      "min": 1,
+      "max": 60,
+      "step": 1,
+      "unit": "sec",
+      "default": 5
+    },
+
+    {
+      "type": "checkbox",
+      "id": "show_once",
+      "label": "Show only once per session",
+      "default": true
+    },
+
+
+    {
+      "type": "header",
+      "content": "Content"
+    },
+
+    {
+      "type": "text",
+      "id": "top_text",
+      "label": "Top text",
+      "default": "⚡ FLASH SALE ⚡"
+    },
+
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "UP TO 35% OFF"
+    },
+
+    {
+      "type": "textarea",
+      "id": "subtitle",
+      "label": "Subtitle",
+      "default": "Great promotions, save up to 35%! Only for a short time!"
+    },
+
+    {
+      "type": "text",
+      "id": "button_text",
+      "label": "Button text",
+      "default": "ABOUT THE OFFERS"
+    },
+
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Button link"
+    },
+
+    {
+      "type": "text",
+      "id": "bottom_text",
+      "label": "Bottom text",
+      "default": "Limited time offer"
+    },
+
+
+    {
+      "type": "header",
+      "content": "Countdown"
+    },
+
+    {
+      "type": "checkbox",
+      "id": "show_countdown",
+      "label": "Show countdown",
+      "default": true
+    },
+
+    {
+      "type": "range",
+      "id": "countdown",
+      "label": "Countdown duration",
+      "min": 1,
+      "max": 72,
+      "step": 1,
+      "unit": "hr",
+      "default": 12
+    },
+
+    {
+      "type": "text",
+      "id": "end_date",
+      "label": "Custom end date/time",
+      "info": "Optional. Example: 2026-09-20T23:59:59"
+    },
+
+
+    {
+      "type": "header",
+      "content": "Desktop Size"
+    },
+
+    {
+      "type": "range",
+      "id": "desktop_width",
+      "label": "Popup width",
+      "min": 400,
+      "max": 1000,
+      "step": 10,
+      "unit": "px",
+      "default": 650
+    },
+
+    {
+      "type": "range",
+      "id": "desktop_height",
+      "label": "Popup height",
+      "min": 250,
+      "max": 700,
+      "step": 10,
+      "unit": "px",
+      "default": 400
+    },
+
+
+    {
+      "type": "header",
+      "content": "Mobile Size"
+    },
+
+    {
+      "type": "range",
+      "id": "mobile_width",
+      "label": "Popup width",
+      "min": 70,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "default": 92
+    },
+
+    {
+      "type": "range",
+      "id": "mobile_height",
+      "label": "Popup height",
+      "min": 250,
+      "max": 700,
+      "step": 10,
+      "unit": "px",
+      "default": 430
+    },
+
+
+    {
+      "type": "header",
+      "content": "Background"
+    },
+
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Desktop background image"
+    },
+
+    {
+      "type": "image_picker",
+      "id": "mobile_background_image",
+      "label": "Mobile background image"
+    },
+
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#DCE5F4"
+    },
+
+    {
+      "type": "color",
+      "id": "image_overlay_color",
+      "label": "Image overlay color",
+      "default": "#FFFFFF"
+    },
+
+    {
+      "type": "range",
+      "id": "image_overlay_opacity",
+      "label": "Image overlay opacity",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 20
+    },
+
+    {
+      "type": "checkbox",
+      "id": "blur_background",
+      "label": "Blur page behind popup",
+      "default": true
+    },
+
+    {
+      "type": "range",
+      "id": "blur_amount",
+      "label": "Blur amount",
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "default": 5
+    },
+
+    {
+      "type": "range",
+      "id": "border_radius",
+      "label": "Border radius",
+      "min": 0,
+      "max": 40,
+      "step": 1,
+      "unit": "px",
+      "default": 12
+    },
+
+    {
+      "type": "color",
+      "id": "overlay_color",
+      "label": "Page overlay",
+      "default": "rgba(0,0,0,0.45)"
+    },
+
+
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Title color",
+      "default": "#FFFFFF"
+    },
+
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#FFFFFF"
+    },
+
+    {
+      "type": "color",
+      "id": "button_color",
+      "label": "Button color",
+      "default": "#FFC400"
+    },
+
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Button text color",
+      "default": "#111111"
+    },
+
+
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+
+    {
+      "type": "range",
+      "id": "top_text_size",
+      "label": "Top text size",
+      "min": 8,
+      "max": 30,
+      "step": 1,
+      "unit": "px",
+      "default": 14
+    },
+
+    {
+      "type": "range",
+      "id": "title_size",
+      "label": "Desktop title size",
+      "min": 20,
+      "max": 80,
+      "step": 1,
+      "unit": "px",
+      "default": 42
+    },
+
+    {
+      "type": "range",
+      "id": "mobile_title_size",
+      "label": "Mobile title size",
+      "min": 18,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "default": 30
+    },
+
+    {
+      "type": "range",
+      "id": "subtitle_size",
+      "label": "Desktop subtitle size",
+      "min": 10,
+      "max": 25,
+      "step": 1,
+      "unit": "px",
+      "default": 14
+    },
+
+    {
+      "type": "range",
+      "id": "mobile_subtitle_size",
+      "label": "Mobile subtitle size",
+      "min": 10,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "default": 13
+    }
+
+  ],
+
+  "presets": [
+    {
+      "name": "Flash Sale Popup"
+    }
+  ]
+
+}
+
+{% endschema %}
